@@ -1,5 +1,8 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 
 /**
@@ -29,9 +32,9 @@ public class PebbleGame{
 
         private int totalWeight;
 
-        public Player(List<Integer> pebbles){
-            this.pebbles = pebbles;
-            totalWeight = totalPebbles();
+        public Player(){
+            this.pebbles = new ArrayList<>();
+            totalWeight = 0;
         }
 
         public List<Integer> getPebbles(){
@@ -61,15 +64,47 @@ public class PebbleGame{
         "and then for the location of three files in turn containing"+
         "comma seperated intger values for the pebbles weights. "+
         "The integer values must be strictly positive.\n"+
-        "The game will then be simulated, and the output written to rules in this directory.");
-        
-        try {
-            System.out.println("Please enter the number of players");
+        "The game will then be simulated, and the output written to rules in this directory.\n");
+
+        int numPlayers = 0;
+        try (Scanner scanner = new Scanner(System.in)){
+            System.out.println("Please enter the number of players:");
+            numPlayers = scanner.nextInt();
+            
+            for (int i = 0; i < numPlayers; i++) {
+                new Player();
+            }
+            
+            scanner.nextLine();
+            for (int i = 0; i < 3; i++) {
+                String fileName = "";
+                System.out.println("Please enter a location of bag number "+i+" to load:\n");
+                fileName = scanner.nextLine();
+                reader(fileName);
+            }
+        }catch (Exception e){
+            //TODO: add exception handling
+        } 
+    }
+
+    /**
+     * A method to read the CSV files used for the black bags.
+     * 
+     * @param fileName the name of the CSV file.
+     * @return the list of integers that was contained within the CSV file.
+     */
+    public void reader(String fileName){
+        String line;
+        try (BufferedReader br =
+        new BufferedReader(new FileReader(fileName))) {
+            while((line = br.readLine()) != null){
+                System.out.println(line);
+            }
         } catch (Exception e) {
             //TODO: handle exception
         }
-        
     }
+
     public static void main(String[] args) {
         new PebbleGame();
     }
