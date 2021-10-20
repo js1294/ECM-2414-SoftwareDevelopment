@@ -11,17 +11,9 @@ import java.util.Scanner;
 */
 public class PebbleGame{
     
-    private ArrayList<Integer> whitebag1;
-    
-    private ArrayList<Integer> whitebag2;
+    private ArrayList<ArrayList<Integer>> whitebags;
 
-    private ArrayList<Integer> whitebag3;
-
-    private ArrayList<Integer> blackbag1;
-
-    private ArrayList<Integer> blackbag2;
-
-    private ArrayList<Integer> blackbag3;
+    private ArrayList<ArrayList<Integer>> blackbags;
     /**
      * This is the nested class to represent the player.
      * 
@@ -71,6 +63,7 @@ public class PebbleGame{
             System.out.println("Please enter the number of players:");
             numPlayers = scanner.nextInt();
             
+            //Creates the players
             for (int i = 0; i < numPlayers; i++) {
                 new Player();
             }
@@ -78,31 +71,37 @@ public class PebbleGame{
             scanner.nextLine();
             for (int i = 0; i < 3; i++) {
                 String fileName = "";
-                System.out.println("Please enter a location of bag number "+i+" to load:\n");
+                System.out.println("Please enter a location of bag number "+i+" to load:");
                 fileName = scanner.nextLine();
-                reader(fileName);
+                blackbags.set(i, reader(fileName));
             }
         }catch (Exception e){
-            //TODO: add exception handling
+            e.printStackTrace();
         } 
     }
 
     /**
      * A method to read the CSV files used for the black bags.
+     * This reads the file splits the file into strings
+     * and then converts them into a list of integers.
      * 
      * @param fileName the name of the CSV file.
      * @return the list of integers that was contained within the CSV file.
      */
-    public void reader(String fileName){
-        String line;
-        try (BufferedReader br =
-        new BufferedReader(new FileReader(fileName))) {
-            while((line = br.readLine()) != null){
-                System.out.println(line);
+    public ArrayList<Integer> reader(String fileName){
+        String text;
+        ArrayList<Integer> integers = new ArrayList<>();
+
+        try (BufferedReader reader  = new BufferedReader(new FileReader(fileName))) {
+            while((text = reader.readLine()) != null){
+                for (String string : text.split(",")) {
+                    integers.add(Integer.parseInt(string));
+                }
             }
         } catch (Exception e) {
-            //TODO: handle exception
+            e.printStackTrace();
         }
+        return integers;
     }
 
     public static void main(String[] args) {
