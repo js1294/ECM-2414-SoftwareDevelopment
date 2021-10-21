@@ -11,9 +11,18 @@ import java.util.Scanner;
 */
 public class PebbleGame{
     
-    private ArrayList<ArrayList<Integer>> whitebags;
+    private ArrayList<Integer> whitebag1;
 
-    private ArrayList<ArrayList<Integer>> blackbags;
+    private ArrayList<Integer> whitebag2;
+
+    private ArrayList<Integer> whitebag3;
+
+    private ArrayList<Integer> blackbag1;
+
+    private ArrayList<Integer> blackbag2;
+
+    private ArrayList<Integer> blackbag3;
+
     /**
      * This is the nested class to represent the player.
      * 
@@ -51,6 +60,7 @@ public class PebbleGame{
         }
     }
     public PebbleGame(){
+
         System.out.println("Welcome to the PebbleGame!!\n"+
         "You will be asked to enter the number of players\n"+
         "and then for the location of three files in turn containing"+
@@ -67,17 +77,28 @@ public class PebbleGame{
             for (int i = 0; i < numPlayers; i++) {
                 new Player();
             }
-            
+            String[] fileName = new String[3];
             scanner.nextLine();
             for (int i = 0; i < 3; i++) {
-                String fileName = "";
                 System.out.println("Please enter a location of bag number "+i+" to load:");
-                fileName = scanner.nextLine();
-                blackbags.set(i, reader(fileName));
+                fileName[i] = scanner.nextLine();
             }
+            //Sets the black bags to the csv file
+            blackbag1 = reader(fileName[0]);
+            blackbag2 = reader(fileName[1]);
+            blackbag3 = reader(fileName[2]);
+
+            //Makes the white bags empty.
+            whitebag1 = new ArrayList<>();
+            whitebag2 = new ArrayList<>();
+            whitebag3 = new ArrayList<>();
         }catch (Exception e){
             e.printStackTrace();
         } 
+
+        System.out.println(blackbag1);
+        System.out.println(blackbag2);
+        System.out.println(blackbag3);
     }
 
     /**
