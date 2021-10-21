@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.Random;
 
@@ -68,8 +69,6 @@ public class PebbleGame{
 
     /**
      * The constructor for pebble game.
-     * This creates the bags, players and assigns
-     * pebbles to the players and bags
      */
     public PebbleGame(){
 
@@ -78,18 +77,26 @@ public class PebbleGame{
         blackbags = new ArrayList<>(3);
         players = new ArrayList<>();
 
+        setUp();
+    }
+
+    public void setUp(){
         System.out.println("Welcome to the PebbleGame!!\n"+
         "You will be asked to enter the number of players\n"+
-        "and then for the location of three files in turn containing"+
+        "and then for the location of three files in turn containing "+
         "comma seperated intger values for the pebbles weights. "+
         "The integer values must be strictly positive.\n"+
         "The game will then be simulated, and the output written to rules in this directory.\n");
 
         int numPlayers = 0;
-        try (Scanner scanner = new Scanner(System.in)){
-
-            System.out.println("Please enter the number of players:");
-            numPlayers = scanner.nextInt();
+        Scanner scanner = new Scanner(System.in);
+        try{
+            
+            //Must be at least one players
+            while(numPlayers <= 0){
+                System.out.println("Please enter the number of players:");
+                numPlayers = scanner.nextInt();
+            }
             
             //Creates the players
             for (int i = 0; i < numPlayers; i++) {
@@ -105,9 +112,13 @@ public class PebbleGame{
                 blackbags.add(reader(fileName));
                 whitebags.add(new ArrayList<>());
             }
-        }catch (Exception e){
-            e.printStackTrace();
-        } 
+        }catch (InputMismatchException e){
+            System.out.println("\n"+e.toString()+"\n");
+            scanner.nextLine();
+            setUp();
+        }finally{
+            scanner.close();
+        }
 
         //Each player needs 10 pebbles each.
         for (Player player : players) {
@@ -140,7 +151,8 @@ public class PebbleGame{
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("\n"+e.toString()+"\n");
+            setUp();
         }
         return integers;
     }
