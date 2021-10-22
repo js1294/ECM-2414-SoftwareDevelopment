@@ -21,6 +21,8 @@ public class PebbleGame{
 
     private Random random;
 
+    private int turn;
+
     /**
      * This is the nested class to represent the player.
      * 
@@ -80,6 +82,10 @@ public class PebbleGame{
         setUp();
     }
 
+    /**
+     * This method sets up the game by creating the players
+     * , creating the bags and giving pebbles to the players.
+     */
     public void setUp(){
         System.out.println("Welcome to the PebbleGame!!\n"+
         "You will be asked to enter the number of players\n"+
@@ -96,11 +102,6 @@ public class PebbleGame{
             while(numPlayers <= 0){
                 System.out.println("Please enter the number of players:");
                 numPlayers = scanner.nextInt();
-            }
-            
-            //Creates the players
-            for (int i = 0; i < numPlayers; i++) {
-                players.add(new Player());
             }
 
             //Add pebbles to the bags
@@ -120,17 +121,53 @@ public class PebbleGame{
             scanner.close();
         }
 
+        
+
         //Each player needs 10 pebbles each.
-        for (Player player : players) {
-            for (int i = 0; i < 10; i++) {
-                drawer(player);
+        for (int i = 0; i < numPlayers; i++) {
+            players.add(new Player());
+            for (int j = 0; j < 10; j++) {
+                drawer(players.get(i));
             }
         }
 
+        //TODO: REMOVE
         System.out.println(blackbags);
         System.out.println(whitebags);
         System.out.println(players);
+
+        mainGame();
     }
+
+    /**
+     * The main game
+     */
+    public void mainGame(){
+        int numPlayers = players.size();
+        Thread[] threads = new Thread[numPlayers];
+        for (turn = 0; turn < numPlayers; turn++){
+            //Creates the threads to be run.
+            threads[turn] = new Thread(new Runnable() {
+            public void run() {
+                System.out.println("Player"+turn+"turn");
+                Scanner scanner = new Scanner(System.in);
+                try {
+                    scanner.nextLine();
+                } catch (Exception e) {
+                    System.out.println("\n"+e.toString()+"\n");
+                    scanner.nextLine();
+                }finally{
+                    scanner.close();
+                }
+            }
+        });
+        }        
+        for (Thread thread : threads) {
+            thread.start();
+        }
+        mainGame();
+    }
+
 
     /**
      * A method to read the CSV files used for the black bags.
