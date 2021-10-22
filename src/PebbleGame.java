@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -48,20 +49,12 @@ public class PebbleGame{
 
         public void addPebble(int weight){
             pebbles.add(weight);
-            totalWeight = totalPebbles();
+            totalWeight += weight;
         }
 
         public void removePebble(int weight){
             pebbles.remove(pebbles.indexOf(weight));
-            totalWeight = totalPebbles();
-        }
-
-        private int totalPebbles(){
-            int total = 0;
-            for (int pebble : pebbles) {
-                total += pebble;
-            }
-            return total;
+            totalWeight -= weight;
         }
 
         public String toString(){
@@ -121,8 +114,6 @@ public class PebbleGame{
             scanner.close();
         }
 
-        
-
         //Each player needs 10 pebbles each.
         for (int i = 0; i < numPlayers; i++) {
             players.add(new Player());
@@ -148,24 +139,33 @@ public class PebbleGame{
         for (turn = 0; turn < numPlayers; turn++){
             //Creates the threads to be run.
             threads[turn] = new Thread(new Runnable() {
+            @Override
             public void run() {
-                System.out.println("Player"+turn+"turn");
-                Scanner scanner = new Scanner(System.in);
+            BufferedReader br = new BufferedReader(
+            new InputStreamReader(System.in));
+            System.out.println("Player"+turn+"turn");
+            System.out.println("You current pebbles are: "+players.get(turn-1).getPebbles());
+            int choice = 0;
+            do {
+                System.out.println("Press 1 to draw a pebble or 2 to discard a pebble.");
                 try {
-                    scanner.nextLine();
-                } catch (Exception e) {
-                    System.out.println("\n"+e.toString()+"\n");
-                    scanner.nextLine();
-                }finally{
-                    scanner.close();
-                }
+                    while (!br.ready()){
+                        Thread.sleep(200);
+                    }
+                    choice = br.read();
+                } catch (InterruptedException e) {
+                    System.out.println("Cancelled");
+                } catch (IOException e) {
+                    System.out.println("Io Exception");
+                } 
+            } while(choice != 0);
+            System.out.println(choice);
             }
         });
         }        
         for (Thread thread : threads) {
             thread.start();
         }
-        mainGame();
     }
 
 
@@ -205,7 +205,9 @@ public class PebbleGame{
         int blackNumber = random.nextInt(3);
         ArrayList<Integer> blackbag = blackbags.get(blackNumber);
         if (!blackbag.isEmpty()){
-            player.addPebble(blackbag.get(random.nextInt(blackbag.size())));
+            int randNum = random.nextInt(blackbag.size());
+            player.addPebble(blackbag.get(randNum));
+            blackbag.remove(randNum);
         }
         else{
             blackbags.set(blackNumber, whitebags.get(blackNumber));
