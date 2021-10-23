@@ -141,30 +141,43 @@ public class PebbleGame{
             threads[turn] = new Thread(new Runnable() {
             @Override
             public void run() {
-            BufferedReader br = new BufferedReader(
-            new InputStreamReader(System.in));
-            System.out.println("Player"+turn+"turn");
-            System.out.println("You current pebbles are: "+players.get(turn-1).getPebbles());
+                
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             int choice = 0;
+
+            System.out.println("Player "+(turn+1)+" turn");
+            System.out.println("You current pebbles are: "+players.get(turn).getPebbles());
+            System.out.println("Press 1 to draw a pebble or 2 to discard a pebble.");
+            
+
             do {
-                System.out.println("Press 1 to draw a pebble or 2 to discard a pebble.");
+                System.out.println("Please type something: ");
                 try {
-                    while (!br.ready()){
-                        Thread.sleep(200);
+                    while (!br.ready()) {
+                      Thread.sleep(200);
                     }
                     choice = br.read();
-                } catch (InterruptedException e) {
-                    System.out.println("Cancelled");
-                } catch (IOException e) {
-                    System.out.println("Io Exception");
-                } 
-            } while(choice != 0);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        Thread.interrupted();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Thread.interrupted();
+                    }
+            } while (choice == 0);
+
             System.out.println(choice);
+
             }
         });
         }        
-        for (Thread thread : threads) {
-            thread.start();
+        for (turn = 0; turn < numPlayers; turn++) {
+            try {
+                threads[turn].start();
+                threads[turn].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
