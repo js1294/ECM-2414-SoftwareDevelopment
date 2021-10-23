@@ -157,10 +157,7 @@ public class PebbleGame{
                       Thread.sleep(200);
                     }
                     choice = br.read();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        Thread.interrupted();
-                    } catch (IOException e) {
+                    } catch (InterruptedException | IOException e) {
                         e.printStackTrace();
                         Thread.interrupted();
                     }
