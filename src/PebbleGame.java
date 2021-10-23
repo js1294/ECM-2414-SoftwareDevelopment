@@ -156,7 +156,7 @@ public class PebbleGame{
                     while (!br.ready()) {
                       Thread.sleep(200);
                     }
-                    choice = br.read();
+                    choice = br.read(); // TODO: Fix - will block but won't accept input
                     } catch (InterruptedException | IOException e) {
                         e.printStackTrace();
                         Thread.interrupted();
@@ -167,11 +167,12 @@ public class PebbleGame{
 
             }
         });
-        }        
+        }
+        // The turn value is updated here to make sure it is correct inside the thread.
         for (turn = 0; turn < numPlayers; turn++) {
             try {
                 threads[turn].start();
-                threads[turn].join();
+                threads[turn].join(); // Allows for the threads to work concurrently
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
