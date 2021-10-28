@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -21,6 +20,8 @@ public class PebbleGame{
     private ArrayList<Player> players;
 
     private Random random;
+
+    private Scanner scanner;
 
     private int turn;
 
@@ -71,6 +72,7 @@ public class PebbleGame{
         whitebags = new ArrayList<>(3);
         blackbags = new ArrayList<>(3);
         players = new ArrayList<>();
+        scanner = new Scanner(System.in);
 
         setUp();
     }
@@ -88,7 +90,6 @@ public class PebbleGame{
         "The game will then be simulated, and the output written to rules in this directory.\n");
 
         int numPlayers = 0;
-        Scanner scanner = new Scanner(System.in);
         try{
             
             //Must be at least one players
@@ -110,8 +111,6 @@ public class PebbleGame{
             System.out.println("\n"+e.toString()+"\n");
             scanner.nextLine();
             setUp();
-        }finally{
-            scanner.close();
         }
 
         //Each player needs 10 pebbles each.
@@ -142,7 +141,6 @@ public class PebbleGame{
             @Override
             public void run() {
                 
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             int choice = 0;
 
             System.out.println("Player "+(turn+1)+" turn");
@@ -152,15 +150,7 @@ public class PebbleGame{
 
             do {
                 System.out.println("Please type something: ");
-                try {
-                    while (!br.ready()) {
-                      Thread.sleep(200);
-                    }
-                    choice = br.read(); // TODO: Fix - will block but won't accept input
-                    } catch (InterruptedException | IOException e) {
-                        e.printStackTrace();
-                        Thread.interrupted();
-                    }
+                choice = scanner.nextInt();
             } while (choice == 0);
 
             System.out.println(choice);
