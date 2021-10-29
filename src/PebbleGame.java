@@ -54,7 +54,6 @@ public class PebbleGame{
         }
 
         public void removePebble(int weight){
-            pebbles.remove(pebbles.indexOf(weight));
             totalWeight -= weight;
         }
 
@@ -140,20 +139,31 @@ public class PebbleGame{
             threads[turn] = new Thread(new Runnable() {
             @Override
             public void run() {
-                
-            int choice = 0;
-
-            System.out.println("Player "+(turn+1)+" turn");
-            System.out.println("You current pebbles are: "+players.get(turn).getPebbles());
-            System.out.println("Press 1 to draw a pebble or 2 to discard a pebble.");
             
 
-            do {
-                System.out.println("Please type something: ");
-                choice = scanner.nextInt();
-            } while (choice == 0);
 
-            System.out.println(choice);
+            System.out.println("Player "+(turn+1)+"'s turn");
+            System.out.println("Your current pebbles are: "+players.get(turn).getPebbles());
+            System.out.println("Your current total weight is: "+players.get(turn).getTotalWeight());
+            System.out.println("Please enter a pebble to discard:");
+    
+            int choice = scanner.nextInt();
+                
+            //removes chosen pebble along with its weight
+            players.get(turn).removePebble(choice);
+            players.get(turn).getPebbles().remove(Integer.valueOf(choice));
+    
+            drawer(players.get(turn));
+            System.out.println(players.get(turn).getPebbles());
+            System.out.println("Your current total weight is: "+players.get(turn).getTotalWeight());
+    
+    
+
+
+            
+
+
+            
 
             }
         });
@@ -215,6 +225,9 @@ public class PebbleGame{
             drawer(player);
         }
     }
+
+        
+
 
     public static void main(String[] args) {
         new PebbleGame();
