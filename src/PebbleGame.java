@@ -25,7 +25,9 @@ public class PebbleGame{
 
     private int turn;
 
-    boolean winner = false;
+    private boolean winner = false;
+
+    private int numPlayers = 0;
 
     /**
      * This is the nested class to represent the player.
@@ -36,6 +38,8 @@ public class PebbleGame{
         private ArrayList<Integer> pebbles;
 
         private int totalWeight;
+
+        private int blackNumber = 0;
 
 
 
@@ -59,6 +63,10 @@ public class PebbleGame{
 
         public void removePebble(int weight){
             totalWeight -= weight;
+        }
+
+        public int getBlackNumber(){
+            return blackNumber;
         }
 
         public String toString(){
@@ -92,7 +100,7 @@ public class PebbleGame{
         "The integer values must be strictly positive.\n"+
         "The game will then be simulated, and the output written to rules in this directory.\n");
 
-        int numPlayers = 0;
+        
         try{
             
             //Must be at least one players
@@ -107,9 +115,11 @@ public class PebbleGame{
             for (int i = 0; i < 3; i++) {
                 System.out.println("Please enter a location of bag number "+i+" to load:");
                 fileName = scanner.nextLine();
+                whitebags.add(new ArrayList<>());         
                 blackbags.add(reader(fileName));
-                whitebags.add(new ArrayList<>());
+                
             }
+
         }catch (InputMismatchException e){
             System.out.println("\n"+e.toString()+"\n");
             scanner.nextLine();
@@ -119,9 +129,7 @@ public class PebbleGame{
         //Each player needs 10 pebbles each.
         for (int i = 0; i < numPlayers; i++) {
             players.add(new Player());
-            for (int j = 0; j < 10; j++) {
-                drawer(players.get(i));
-            }
+            initialDrawer(players.get(i));           
         }
 
         //TODO: REMOVE
@@ -131,6 +139,8 @@ public class PebbleGame{
 
         mainGame();
     }
+
+
 
     /**
      * The main game
@@ -152,8 +162,10 @@ public class PebbleGame{
                     return;
                 }
 
-                System.out.println("Player "+(turn+1)+"'s turn");
-                System.out.println("Your current pebbles are: "+players.get(turn).getPebbles());
+                //shows the player their pebbles and total weight on each turn
+
+                System.out.println("\nPlayer "+(turn+1)+"'s turn");
+                System.out.println("Your current pebbles are: "+ players.get(turn).getPebbles());
                 System.out.println("Your current total weight is: "+players.get(turn).getTotalWeight());
                 System.out.println("Please enter a pebble to discard:");
             
@@ -162,11 +174,17 @@ public class PebbleGame{
                 //removes chosen pebble along with its weight
                 players.get(turn).removePebble(choice);
                 players.get(turn).getPebbles().remove(Integer.valueOf(choice));
+                ArrayList<Integer> whitebag = whitebags.get(players.get(turn).blackNumber);
+                whitebag.add(choice);
+
             
                 drawer(players.get(turn));
                 System.out.println(players.get(turn).getPebbles());
                 System.out.println("Your current total weight is: "+players.get(turn).getTotalWeight());
 
+                //TODO: REMOVE
+                System.out.println("whitebags: " + whitebags);
+                System.out.println("blackbags: " + blackbags);           
 
             }
         });
@@ -180,12 +198,11 @@ public class PebbleGame{
                 e.printStackTrace();
             }
         }
+
         if (winner != true){
             mainGame();
         }
         return;
-        
-
        
     }
 
@@ -207,7 +224,9 @@ public class PebbleGame{
         try (BufferedReader reader  = new BufferedReader(new FileReader(fileName))) {
             while((text = reader.readLine()) != null){
                 for (String string : text.split(",")) {
-                    integers.add(Integer.parseInt(string));
+                    for (int j = 0; j < numPlayers; j++) {
+                        integers.add(Integer.parseInt(string));
+                    }
                 }
             }
         } catch (IOException e) {
@@ -217,6 +236,7 @@ public class PebbleGame{
         return integers;
     }
 
+
     /**
      * This method is used to draw a pebble for a player.
      * Takes it from a random black bag that isn't empty.
@@ -225,18 +245,39 @@ public class PebbleGame{
      */
     public void drawer(Player player){
         random = new Random();
-        int blackNumber = random.nextInt(3);
-        ArrayList<Integer> blackbag = blackbags.get(blackNumber);
+        player.blackNumber = random.nextInt(3);
+        ArrayList<Integer> blackbag = blackbags.get(player.blackNumber);
         if (!blackbag.isEmpty()){
             int randNum = random.nextInt(blackbag.size());
             player.addPebble(blackbag.get(randNum));
             blackbag.remove(randNum);
         }
         else{
-            blackbags.set(blackNumber, whitebags.get(blackNumber));
+            blackbags.get(player.blackNumber).addAll(whitebags.get(player.blackNumber));
+            //blackbags.set(player.blackNumber, whitebags.get(player.blackNumber));
+            whitebags.get(player.blackNumber).clear();
             drawer(player);
         }
     }
+
+
+    /**
+     * This method is used to draw the initial pebbles for a player.
+     * Takes it from a random black bag.
+     * 
+     * @param player is the player to draw the pebbles to
+     */
+    public void initialDrawer(Player player){
+        random = new Random();
+        player.blackNumber = random.nextInt(3);
+        ArrayList<Integer> blackbag = blackbags.get(player.blackNumber);
+        for (int j = 0; j < 10; j++) {
+            int randNum = random.nextInt(blackbag.size());
+            player.addPebble(blackbag.get(randNum));
+            blackbag.remove(randNum);
+        }
+    }
+
 
         
 
