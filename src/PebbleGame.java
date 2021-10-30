@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Random;
 
 
@@ -13,9 +14,9 @@ import java.util.Random;
 */
 public class PebbleGame{
     
-    private ArrayList<ArrayList<Integer>> whitebags; // Stored in order A,B,C
+    private ArrayList<ArrayList<AtomicInteger>> whitebags; // Stored in order A,B,C
 
-    private ArrayList<ArrayList<Integer>> blackbags; // Stored in order X,Y,Z
+    private ArrayList<ArrayList<AtomicInteger>> blackbags; // Stored in order X,Y,Z
 
     private ArrayList<Player> players;
 
@@ -146,8 +147,7 @@ public class PebbleGame{
      * The main game
      */
     public void mainGame(){
-        
-        int numPlayers = players.size();
+        numPlayers = players.size();
         Thread[] threads = new Thread[numPlayers];
         for (turn = 0; turn < numPlayers; turn++){
             //Creates the threads to be run.
@@ -174,8 +174,8 @@ public class PebbleGame{
                 //removes chosen pebble along with its weight
                 players.get(turn).removePebble(choice);
                 players.get(turn).getPebbles().remove(Integer.valueOf(choice));
-                ArrayList<Integer> whitebag = whitebags.get(players.get(turn).blackNumber);
-                whitebag.add(choice);
+                ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
+                whitebag.add(new AtomicInteger(choice));
 
             
                 drawer(players.get(turn));
@@ -196,14 +196,13 @@ public class PebbleGame{
                 threads[turn].join(); // Allows for the threads to work concurrently
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         }
 
-        if (winner != true){
+        if (!winner){
             mainGame();
         }
-        return;
-       
     }
 
  
@@ -217,15 +216,15 @@ public class PebbleGame{
      * @param fileName the name of the CSV file.
      * @return the list of integers that was contained within the CSV file.
      */
-    public ArrayList<Integer> reader(String fileName){
+    public ArrayList<AtomicInteger> reader(String fileName){
         String text;
-        ArrayList<Integer> integers = new ArrayList<>();
+        ArrayList<AtomicInteger> integers = new ArrayList<>();
 
         try (BufferedReader reader  = new BufferedReader(new FileReader(fileName))) {
             while((text = reader.readLine()) != null){
                 for (String string : text.split(",")) {
                     for (int j = 0; j < numPlayers; j++) {
-                        integers.add(Integer.parseInt(string));
+                        integers.add(new AtomicInteger(Integer.parseInt(string)));
                     }
                 }
             }
@@ -246,15 +245,14 @@ public class PebbleGame{
     public void drawer(Player player){
         random = new Random();
         player.blackNumber = random.nextInt(3);
-        ArrayList<Integer> blackbag = blackbags.get(player.blackNumber);
+        ArrayList<AtomicInteger> blackbag = blackbags.get(player.blackNumber);
         if (!blackbag.isEmpty()){
             int randNum = random.nextInt(blackbag.size());
-            player.addPebble(blackbag.get(randNum));
+            player.addPebble(blackbag.get(randNum).get());
             blackbag.remove(randNum);
         }
         else{
             blackbags.get(player.blackNumber).addAll(whitebags.get(player.blackNumber));
-            //blackbags.set(player.blackNumber, whitebags.get(player.blackNumber));
             whitebags.get(player.blackNumber).clear();
             drawer(player);
         }
@@ -270,10 +268,10 @@ public class PebbleGame{
     public void initialDrawer(Player player){
         random = new Random();
         player.blackNumber = random.nextInt(3);
-        ArrayList<Integer> blackbag = blackbags.get(player.blackNumber);
+        ArrayList<AtomicInteger> blackbag = blackbags.get(player.blackNumber);
         for (int j = 0; j < 10; j++) {
             int randNum = random.nextInt(blackbag.size());
-            player.addPebble(blackbag.get(randNum));
+            player.addPebble(blackbag.get(randNum).get());
             blackbag.remove(randNum);
         }
     }
