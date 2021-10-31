@@ -1,11 +1,14 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Random;
+import java.io.IOException;  
+import java.io.FileWriter;
 
 
 /**
@@ -41,6 +44,10 @@ public class PebbleGame{
         private int totalWeight;
 
         private int blackNumber = 0;
+
+        private int choice;
+
+        private int randNum;
 
 
 
@@ -111,11 +118,10 @@ public class PebbleGame{
             }
 
             //Add pebbles to the bags
-            String fileName = "";
             scanner.nextLine();
             for (int i = 0; i < 3; i++) {
                 System.out.println("Please enter a location of bag number "+i+" to load:");
-                fileName = scanner.nextLine();
+                String fileName = scanner.nextLine();
                 whitebags.add(new ArrayList<>());         
                 blackbags.add(reader(fileName));
                 
@@ -137,6 +143,17 @@ public class PebbleGame{
         System.out.println(blackbags);
         System.out.println(whitebags);
         System.out.println(players);
+
+
+        //Creates output file for each player
+        /*for (int i = 0; i < numPlayers; i++) {
+            try {
+                File myObj = new File("player" + (i+1) + "_output.txt");
+                myObj.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
 
         mainGame();
     }
@@ -169,22 +186,27 @@ public class PebbleGame{
                 System.out.println("Your current total weight is: "+players.get(turn).getTotalWeight());
                 System.out.println("Please enter a pebble to discard:");
             
-                int choice = scanner.nextInt();
+                players.get(turn).choice = scanner.nextInt();
                         
                 //removes chosen pebble along with its weight
-                players.get(turn).removePebble(choice);
-                players.get(turn).getPebbles().remove(Integer.valueOf(choice));
+                players.get(turn).removePebble(players.get(turn).choice);
+                players.get(turn).getPebbles().remove(Integer.valueOf(players.get(turn).choice));
                 ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
-                whitebag.add(new AtomicInteger(choice));
+                whitebag.add(new AtomicInteger(players.get(turn).choice));
 
-            
+                discardWriter();
                 drawer(players.get(turn));
-                System.out.println(players.get(turn).getPebbles());
+                drawWriter();
+                
                 System.out.println("Your current total weight is: "+players.get(turn).getTotalWeight());
 
                 //TODO: REMOVE
                 System.out.println("whitebags: " + whitebags);
-                System.out.println("blackbags: " + blackbags);           
+                System.out.println("blackbags: " + blackbags);   
+
+
+                
+
 
             }
         });
@@ -247,15 +269,15 @@ public class PebbleGame{
         player.blackNumber = random.nextInt(3);
         ArrayList<AtomicInteger> blackbag = blackbags.get(player.blackNumber);
         if (!blackbag.isEmpty()){
-            int randNum = random.nextInt(blackbag.size());
-            player.addPebble(blackbag.get(randNum).get());
-            blackbag.remove(randNum);
+            player.randNum = random.nextInt(blackbag.size());
+            player.addPebble(blackbag.get(player.randNum).get());
+            blackbag.remove(player.randNum);
         }
-        else{
-            blackbags.get(player.blackNumber).addAll(whitebags.get(player.blackNumber));
-            whitebags.get(player.blackNumber).clear();
-            drawer(player);
-        }
+            else{
+                blackbags.get(player.blackNumber).addAll(whitebags.get(player.blackNumber));
+                whitebags.get(player.blackNumber).clear();
+                drawer(player);
+            }     
     }
 
 
@@ -277,6 +299,48 @@ public class PebbleGame{
     }
 
 
+
+
+    public void discardWriter(){
+
+        int i = players.get(turn).blackNumber;
+        String list = Arrays.toString(players.get(turn).getPebbles().toArray()).replace("[", "").replace("]", "");
+        try {
+            
+            FileWriter myWriter = new FileWriter("player" + (turn+1) + "_output.txt", true);
+            BufferedWriter bw = new BufferedWriter(myWriter);
+            bw.write("player" + (turn+1) + " has discarded a " + players.get(turn).choice + " to bag " + (char)(i+'A') );
+            bw.newLine();
+            bw.write("player" + (turn+1) + " hand is " + list );
+            bw.newLine();
+            bw.close();
+    
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public void drawWriter(){
+
+        int i = players.get(turn).blackNumber;
+        String list = Arrays.toString(players.get(turn).getPebbles().toArray()).replace("[", "").replace("]", "");
+        try {
+            
+            FileWriter myWriter = new FileWriter("player" + (turn+1) + "_output.txt", true);
+            BufferedWriter bw = new BufferedWriter(myWriter);
+            bw.write("player" + (turn+1) + " has drawn a " + (players.get(turn).randNum+1) + " from bag " + (char)(i+'A'+23) );
+            bw.newLine();
+            bw.write("player" + (turn+1) + " hand is " + list );
+            bw.newLine();
+            bw.newLine();
+            bw.close();
+    
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
         
 
 
