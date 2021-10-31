@@ -143,17 +143,7 @@ public class PebbleGame{
         System.out.println(blackbags);
         System.out.println(whitebags);
         System.out.println(players);
-
-
-        //Creates output file for each player
-        /*for (int i = 0; i < numPlayers; i++) {
-            try {
-                File myObj = new File("player" + (i+1) + "_output.txt");
-                myObj.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
+        
 
         mainGame();
     }
