@@ -61,33 +61,6 @@ public class PebbleGame{
         }
 
         /**
-         * The getter method for the list of pebbles
-         * 
-         * @return the player's list of pebbles.
-         */
-        public ArrayList<Integer> getPebbles(){
-            return pebbles;
-        }
-
-        /**
-         * The getter method for the total weight of all pebbles.
-         * 
-         * @return the total of the list pebbles.
-         */
-        public int getTotalWeight(){
-            return totalWeight;
-        }
-
-        /**
-         * The getter method for the black number.
-         * 
-         * @return the black number.
-         */
-        public int getBlackNumber(){
-            return blackNumber;
-        }
-
-        /**
          * The adder method for the list of pebbles.
          * 
          * @param weight of the new pebbles being added.
@@ -98,6 +71,7 @@ public class PebbleGame{
         }
 
         public void removePebble(int weight){
+            pebbles.remove(Integer.valueOf(weight));
             totalWeight -= weight;
         }
 
@@ -188,7 +162,7 @@ public class PebbleGame{
             @Override
             public void run() {
 
-                if(players.get(turn).getTotalWeight() == 100) {
+                if(players.get(turn).totalWeight == 100) {
 
                     System.out.println("Player " + (turn+1) + " wins!");
                     winner = true;
@@ -198,22 +172,21 @@ public class PebbleGame{
                 //shows the player their pebbles and total weight on each turn
 
                 System.out.println("\nPlayer "+(turn+1)+"'s turn");
-                System.out.println("Your current pebbles are: "+ players.get(turn).getPebbles());
-                System.out.println("Your current total weight is: "+players.get(turn).getTotalWeight());
+                System.out.println("Your current pebbles are: "+ players.get(turn).pebbles);
+                System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
                 System.out.println("Please enter a pebble to discard:");
             
                 players.get(turn).choice = scanner.nextInt();
                         
                 //removes chosen pebble along with its weight
                 players.get(turn).removePebble(players.get(turn).choice);
-                players.get(turn).getPebbles().remove(Integer.valueOf(players.get(turn).choice));
                 ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
                 whitebag.add(new AtomicInteger(players.get(turn).choice));
 
                 discardWriter(players.get(turn));
                 drawer(players.get(turn));
                 drawWriter(players.get(turn));
-                System.out.println("Your current total weight is: "+players.get(turn).getTotalWeight());
+                System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
 
                 //TODO: REMOVE
                 System.out.println("whitebags: " + whitebags);
@@ -280,7 +253,6 @@ public class PebbleGame{
      * @param player is the player to draw the pebble to
      */
     public void drawer(Player player){
-        random = new Random();
         player.blackNumber = random.nextInt(3);
         ArrayList<AtomicInteger> blackbag = blackbags.get(player.blackNumber);
         if (!blackbag.isEmpty()){
@@ -304,7 +276,6 @@ public class PebbleGame{
      * @param player is the player to draw the pebbles to
      */
     public void initialDrawer(Player player){
-        random = new Random();
         player.blackNumber = random.nextInt(3);
         ArrayList<AtomicInteger> blackbag = blackbags.get(player.blackNumber);
         for (int j = 0; j < 10; j++) {
@@ -319,10 +290,9 @@ public class PebbleGame{
 
     public void discardWriter(Player player){
 
-        int i = player.blackNumber;
-        String list = Arrays.toString(player.getPebbles().toArray()).replace("[", "").replace("]", "");
+        String list = Arrays.toString(player.pebbles.toArray()).replace("[", "").replace("]", "");
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("player" + (turn+1) + "_output.txt", true))) {
-            bw.write("player" + (turn+1) + " has discarded a " + player.choice + " to bag " + (char)(i+'A') );
+            bw.write("player" + (turn+1) + " has discarded a " + player.choice + " to bag " + (char)(player.blackNumber+'A') );
             bw.newLine();
             bw.write("player" + (turn+1) + " hand is " + list );
             bw.newLine();
@@ -335,10 +305,9 @@ public class PebbleGame{
 
     public void drawWriter(Player player){
 
-        int i = player.blackNumber;
-        String list = Arrays.toString(player.getPebbles().toArray()).replace("[", "").replace("]", "");
+        String list = Arrays.toString(player.pebbles.toArray()).replace("[", "").replace("]", "");
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("player" + (turn+1) + "_output.txt", true))) {
-            bw.write("player" + (turn+1) + " has drawn a " + player.pebbles.get(player.pebbles.size()-1) + " from bag " + (char)(i+'A'+23) );
+            bw.write("player" + (turn+1) + " has drawn a " + player.pebbles.get(player.pebbles.size()-1) + " from bag " + (char)(player.blackNumber+'A'+23) );
             bw.newLine();
             bw.write("player" + (turn+1) + " hand is " + list );
             bw.newLine();
