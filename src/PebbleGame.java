@@ -33,9 +33,9 @@ public class PebbleGame{
 
     private int turn; // Stores the current turn, to know what player should be playing.
 
-    private boolean winner; // Stores if their a winner or not.
+    private boolean winner; // Stores if there is a winner or not.
 
-    private int numPlayers; // Stores the number of players 
+    private int numPlayers; // Stores the number of players.
 
     /**
      * This is the nested class to represent the player in pebble game.
@@ -62,6 +62,7 @@ public class PebbleGame{
 
         /**
          * The adder method for the list of pebbles.
+         * Also, adds to total weight.
          * 
          * @param weight of the new pebbles being added.
          */
@@ -70,13 +71,15 @@ public class PebbleGame{
             totalWeight += weight;
         }
 
+        /**
+         * The remover method for the list of pebbles.
+         * Also, removes from total weight.
+         * 
+         * @param weight
+         */
         public void removePebble(int weight){
             pebbles.remove(Integer.valueOf(weight));
             totalWeight -= weight;
-        }
-
-        public String toString(){
-            return pebbles.toString();
         }
     }
 
@@ -138,20 +141,13 @@ public class PebbleGame{
             players.add(new Player());
             initialDrawer(players.get(i));           
         }
-
-        //TODO: REMOVE
-        System.out.println(blackbags);
-        System.out.println(whitebags);
-        System.out.println(players);
-
-
         mainGame();
     }
 
 
 
     /**
-     * The main game
+     * The main game, each player is run concurrently as a thread.
      */
     public void mainGame(){
         numPlayers = players.size();
@@ -161,41 +157,7 @@ public class PebbleGame{
             threads[turn] = new Thread(new Runnable() {
             @Override
             public void run() {
-
-                if(players.get(turn).totalWeight == 100) {
-
-                    System.out.println("Player " + (turn+1) + " wins!");
-                    winner = true;
-                    return;
-                }
-
-                //shows the player their pebbles and total weight on each turn
-
-                System.out.println("\nPlayer "+(turn+1)+"'s turn");
-                System.out.println("Your current pebbles are: "+ players.get(turn).pebbles);
-                System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
-                System.out.println("Please enter a pebble to discard:");
-            
-                players.get(turn).choice = scanner.nextInt();
-                        
-                //removes chosen pebble along with its weight
-                players.get(turn).removePebble(players.get(turn).choice);
-                ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
-                whitebag.add(new AtomicInteger(players.get(turn).choice));
-
-                discardWriter(players.get(turn));
-                drawer(players.get(turn));
-                drawWriter(players.get(turn));
-                System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
-
-                //TODO: REMOVE
-                System.out.println("whitebags: " + whitebags);
-                System.out.println("blackbags: " + blackbags);   
-
-
-                
-
-
+                playerThead();
             }
         });
         }
@@ -210,13 +172,43 @@ public class PebbleGame{
             }
         }
 
+        // Checks if there is a winner or not.
         if (!winner){
             mainGame();
         }
     }
 
- 
+    /**
+     * The method that will be run in a thread for each player.
+     */
+    public void playerThead(){
+        if(players.get(turn).totalWeight == 100) {
 
+            System.out.println("Player " + (turn+1) + " wins!");
+            winner = true;
+            return;
+        }
+    
+        //shows the player their pebbles and total weight on each turn
+    
+        System.out.println("\nPlayer "+(turn+1)+"'s turn");
+        System.out.println("Your current pebbles are: "+ players.get(turn).pebbles);
+        System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
+        System.out.println("Please enter a pebble to discard:");
+    
+        players.get(turn).choice = scanner.nextInt();
+                
+        //removes chosen pebble along with its weight
+        players.get(turn).removePebble(players.get(turn).choice);
+        ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
+        whitebag.add(new AtomicInteger(players.get(turn).choice));
+    
+        discardWriter(players.get(turn));
+        drawer(players.get(turn));
+        drawWriter(players.get(turn));
+        System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
+
+    }
 
     /**
      * A method to read the CSV files used for the black bags.
@@ -245,7 +237,6 @@ public class PebbleGame{
         return integers;
     }
 
-
     /**
      * This method is used to draw a pebble for a player.
      * Takes it from a random black bag that isn't empty.
@@ -268,7 +259,6 @@ public class PebbleGame{
             }     
     }
 
-
     /**
      * This method is used to draw the initial pebbles for a player.
      * Takes it from a random black bag.
@@ -285,9 +275,11 @@ public class PebbleGame{
         }
     }
 
-
-
-
+    /**
+     * This method is used to update the individual player file, when discarding a pebble.
+     * 
+     * @param player is the player currently discarding a pebble.
+     */
     public void discardWriter(Player player){
 
         String list = Arrays.toString(player.pebbles.toArray()).replace("[", "").replace("]", "");
@@ -303,6 +295,11 @@ public class PebbleGame{
         }
     }
 
+    /**
+     * This method is used to update the individual player file, when adding a pebble.
+     * 
+     * @param player is the player currently adding a pebble.
+     */
     public void drawWriter(Player player){
 
         String list = Arrays.toString(player.pebbles.toArray()).replace("[", "").replace("]", "");
@@ -317,12 +314,5 @@ public class PebbleGame{
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-    }
-        
-
-
-    //TODO: Remove
-    public static void main(String[] args) {
-        new PebbleGame();
     }
 }
