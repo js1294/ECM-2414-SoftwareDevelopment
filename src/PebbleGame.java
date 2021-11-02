@@ -12,56 +12,86 @@ import java.io.FileWriter;
 
 
 /**
-* @author Jack Shaw, Shalan Sharma
-* @version 0.1
-*/
+ * A short program to implement the pebble game.
+ * This will create a number of players that will run as concurrent threads.
+ * Each player will try to get their total weight to pebbles to 100 to win.
+ * 
+ * @author Jack Shaw, Shalan Sharma
+ * @version 0.8
+ */
 public class PebbleGame{
     
-    private ArrayList<ArrayList<AtomicInteger>> whitebags; // Stored in order A,B,C
+    private ArrayList<ArrayList<AtomicInteger>> whitebags; // Stores the white bag of pebbles in order A,B,C.
 
-    private ArrayList<ArrayList<AtomicInteger>> blackbags; // Stored in order X,Y,Z
+    private ArrayList<ArrayList<AtomicInteger>> blackbags; // Stores the black bag of pebbles in order X,Y,Z.
 
-    private ArrayList<Player> players;
+    private ArrayList<Player> players; // Stores an array of all players.
 
-    private Random random;
+    private Random random; // Stores random for reuse within this class.
 
-    private Scanner scanner;
+    private Scanner scanner; // Stores scanner for reuse within this class.
 
-    private int turn;
+    private int turn; // Stores the current turn, to know what player should be playing.
 
-    private boolean winner = false;
+    private boolean winner; // Stores if their a winner or not.
 
-    private int numPlayers = 0;
+    private int numPlayers; // Stores the number of players 
 
     /**
-     * This is the nested class to represent the player.
-     * 
+     * This is the nested class to represent the player in pebble game.
      */
     public static class Player{
 
-        private ArrayList<Integer> pebbles;
+        private ArrayList<Integer> pebbles; // A list of all pebbles each player has.
 
-        private int totalWeight;
+        private int totalWeight; // Stores the total weight of all the pebbles, used for winning the game.
 
-        private int blackNumber = 0;
+        private int blackNumber; // Stores the index of the black bag to make sure the player report file
+        // and white bag discarded to is correct.
 
-        private int choice;
+        private int choice; // Stores the pebble that will be removed.
 
-
-
+        /**
+         * The constuctor for the player.
+         */
         public Player(){
             this.pebbles = new ArrayList<>();
+            blackNumber = 0;
             totalWeight = 0;
         }
 
+        /**
+         * The getter method for the list of pebbles
+         * 
+         * @return the player's list of pebbles.
+         */
         public ArrayList<Integer> getPebbles(){
             return pebbles;
         }
 
+        /**
+         * The getter method for the total weight of all pebbles.
+         * 
+         * @return the total of the list pebbles.
+         */
         public int getTotalWeight(){
             return totalWeight;
         }
 
+        /**
+         * The getter method for the black number.
+         * 
+         * @return the black number.
+         */
+        public int getBlackNumber(){
+            return blackNumber;
+        }
+
+        /**
+         * The adder method for the list of pebbles.
+         * 
+         * @param weight of the new pebbles being added.
+         */
         public void addPebble(int weight){
             pebbles.add(weight);
             totalWeight += weight;
@@ -69,10 +99,6 @@ public class PebbleGame{
 
         public void removePebble(int weight){
             totalWeight -= weight;
-        }
-
-        public int getBlackNumber(){
-            return blackNumber;
         }
 
         public String toString(){
@@ -90,6 +116,8 @@ public class PebbleGame{
         blackbags = new ArrayList<>(3);
         players = new ArrayList<>();
         scanner = new Scanner(System.in);
+        random = new Random();
+        winner = false;
 
         setUp();
     }
@@ -293,15 +321,11 @@ public class PebbleGame{
 
         int i = player.blackNumber;
         String list = Arrays.toString(player.getPebbles().toArray()).replace("[", "").replace("]", "");
-        try {
-            
-            FileWriter myWriter = new FileWriter("player" + (turn+1) + "_output.txt", true);
-            BufferedWriter bw = new BufferedWriter(myWriter);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("player" + (turn+1) + "_output.txt", true))) {
             bw.write("player" + (turn+1) + " has discarded a " + player.choice + " to bag " + (char)(i+'A') );
             bw.newLine();
             bw.write("player" + (turn+1) + " hand is " + list );
             bw.newLine();
-            bw.close();
     
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -313,16 +337,12 @@ public class PebbleGame{
 
         int i = player.blackNumber;
         String list = Arrays.toString(player.getPebbles().toArray()).replace("[", "").replace("]", "");
-        try {
-            
-            FileWriter myWriter = new FileWriter("player" + (turn+1) + "_output.txt", true);
-            BufferedWriter bw = new BufferedWriter(myWriter);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("player" + (turn+1) + "_output.txt", true))) {
             bw.write("player" + (turn+1) + " has drawn a " + player.pebbles.get(player.pebbles.size()-1) + " from bag " + (char)(i+'A'+23) );
             bw.newLine();
             bw.write("player" + (turn+1) + " hand is " + list );
             bw.newLine();
             bw.newLine();
-            bw.close();
     
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -332,6 +352,7 @@ public class PebbleGame{
         
 
 
+    //TODO: Remove
     public static void main(String[] args) {
         new PebbleGame();
     }
