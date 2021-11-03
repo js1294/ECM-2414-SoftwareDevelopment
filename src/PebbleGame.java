@@ -1,3 +1,6 @@
+package src;
+
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -60,6 +63,22 @@ public class PebbleGame{
             totalWeight = 0;
         }
 
+        public ArrayList<Integer> getPebbles() {
+            return pebbles;
+        }
+
+        public int getBlackNumber() {
+            return blackNumber;
+        }
+
+        public int getTotalWeight() {
+            return totalWeight;
+        }
+
+        public int getChoice() {
+            return choice;
+        }
+
         /**
          * The adder method for the list of pebbles.
          * Also, adds to total weight.
@@ -78,8 +97,9 @@ public class PebbleGame{
          * @param weight
          */
         public void removePebble(int weight){
-            pebbles.remove(Integer.valueOf(weight));
-            totalWeight -= weight;
+            if (pebbles.remove(Integer.valueOf(weight))){
+                totalWeight -= weight;
+            }
         }
     }
 
