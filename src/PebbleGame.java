@@ -1,6 +1,5 @@
 package src;
 
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -84,8 +83,13 @@ public class PebbleGame{
          * Also, adds to total weight.
          * 
          * @param weight of the new pebbles being added.
+         * @throws InputMismatchException when a invalid weight is entered
+         * (e.g. negative integers or strings).
          */
-        public void addPebble(int weight){
+        public void addPebble(int weight) throws InputMismatchException{
+            if (weight <= 0){
+                throw new InputMismatchException();
+            }
             pebbles.add(weight);
             totalWeight += weight;
         }
@@ -94,11 +98,15 @@ public class PebbleGame{
          * The remover method for the list of pebbles.
          * Also, removes from total weight.
          * 
-         * @param weight
+         * @param weight of the pebble being removed.
+         * @throws NullPointerException when an pebble is removed but doesn't exsist.
          */
-        public void removePebble(int weight){
+        public void removePebble(int weight) throws NullPointerException{
             if (pebbles.remove(Integer.valueOf(weight))){
                 totalWeight -= weight;
+            }
+            else{
+                throw new NullPointerException();
             }
         }
     }
@@ -115,8 +123,34 @@ public class PebbleGame{
         scanner = new Scanner(System.in);
         random = new Random();
         winner = false;
+        numPlayers = 0;
+        turn = 0;
 
         setUp();
+    }
+
+    public ArrayList<ArrayList<AtomicInteger>> getBlackbags() {
+        return blackbags;
+    }
+
+    public ArrayList<ArrayList<AtomicInteger>> getWhitebags() {
+        return whitebags;
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public int getTurn() {
+        return turn;
+    }
+
+    public int getNumPlayers() {
+        return numPlayers;
+    }
+
+    public Boolean getWinner() {
+        return winner;
     }
 
     /**
@@ -147,7 +181,6 @@ public class PebbleGame{
                 String fileName = scanner.nextLine();
                 whitebags.add(new ArrayList<>());         
                 blackbags.add(reader(fileName));
-                
             }
 
         }catch (InputMismatchException e){
@@ -242,7 +275,7 @@ public class PebbleGame{
         String text;
         ArrayList<AtomicInteger> integers = new ArrayList<>();
 
-        try (BufferedReader reader  = new BufferedReader(new FileReader(fileName))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             while((text = reader.readLine()) != null){
                 for (String string : text.split(",")) {
                     for (int j = 0; j < numPlayers; j++) {
