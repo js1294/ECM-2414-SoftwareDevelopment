@@ -203,66 +203,93 @@ public class PebbleGame{
      * The main game, each player is run concurrently as a thread.
      */
     public void mainGame(){
-        numPlayers = players.size();
-        Thread[] threads = new Thread[numPlayers];
-        for (turn = 0; turn < numPlayers; turn++){
-            //Creates the threads to be run.
-            threads[turn] = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                playerThead();
-            }
-        });
-        }
-        // The turn value is updated here to make sure it is correct inside the thread.
-        for (turn = 0; turn < numPlayers; turn++) {
-            try {
-                threads[turn].start();
-                threads[turn].join(); // Allows for the threads to work concurrently
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        // Checks if there is a winner or not.
         if (!winner){
+            numPlayers = players.size();
+            Thread[] threads = new Thread[numPlayers];
+            for (turn = 0; turn < numPlayers; turn++){
+              
+                                    //Creates the threads to be run.
+                 threads[turn] = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    playerThead();
+                }
+                });
+   
+    
+
+            }
+            // The turn value is updated here to make sure it is correct inside the thread.
+            for (turn = 0; turn < numPlayers; turn++) {
+                try {
+                    threads[turn].start();
+                    threads[turn].join(); // Allows for the threads to work concurrently
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
+            }
+
             mainGame();
         }
+
+
+        // Checks if there is a winner or not.
+
     }
 
     /**
      * The method that will be run in a thread for each player.
      */
     public void playerThead(){
-        if(players.get(turn).totalWeight == 100) {
 
-            System.out.println("Player " + (turn+1) + " wins!");
-            winner = true;
-            return;
+
+
+        if(!winner){
+
+
+
+            //shows the player their pebbles and total weight on each turn        
+            System.out.println("\nPlayer "+(turn+1)+"'s turn");
+            System.out.println("Your current pebbles are: "+ players.get(turn).pebbles);
+            System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
+            System.out.println("Please enter a pebble to discard:");
+                       
+            if (scanner.hasNextInt()) { 
+
+                players.get(turn).choice = scanner.nextInt();
+                                
+                //removes chosen pebble along with its weight
+                players.get(turn).removePebble(players.get(turn).choice);
+                    
+                //adds pebble to whitebag
+                ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
+                whitebag.add(new AtomicInteger(players.get(turn).choice));
+                    
+                discardWriter(players.get(turn));
+                drawer(players.get(turn));
+                drawWriter(players.get(turn));
+
+                if(players.get(turn).totalWeight > 75) {
+
+                    System.out.println("Player " + (turn+1) + " wins!");
+                    winner = true;
+                    
+                }
+            }   
+            else if (scanner.hasNext()){
+                                            
+                String userInput = scanner.next();
+                //comparing the input value with letter e ignoring the case
+                if(userInput.equalsIgnoreCase("e")){
+                            winner = true;
+                }
+            }        
         }
-    
-        //shows the player their pebbles and total weight on each turn
-    
-        System.out.println("\nPlayer "+(turn+1)+"'s turn");
-        System.out.println("Your current pebbles are: "+ players.get(turn).pebbles);
-        System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
-        System.out.println("Please enter a pebble to discard:");
-    
-        players.get(turn).choice = scanner.nextInt();
-                
-        //removes chosen pebble along with its weight
-        players.get(turn).removePebble(players.get(turn).choice);
-        ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
-        whitebag.add(new AtomicInteger(players.get(turn).choice));
-    
-        discardWriter(players.get(turn));
-        drawer(players.get(turn));
-        drawWriter(players.get(turn));
-        System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
-
     }
 
+
+    
     /**
      * A method to read the CSV files used for the black bags.
      * This reads the file splits the file into strings
@@ -303,7 +330,6 @@ public class PebbleGame{
             int randNum = random.nextInt(blackbag.size());
             player.addPebble(blackbag.get(randNum).get());
             blackbag.remove(randNum);
-            System.out.println("correct is randNum is: " + player.pebbles.get(player.pebbles.size() - 1));
         }
             else{
                 blackbags.get(player.blackNumber).addAll(whitebags.get(player.blackNumber));
