@@ -114,7 +114,6 @@ public class PebbleGame{
      * The constructor for pebble game.
      */
     public PebbleGame(){
-
         //Initalising the ArrayLists.
         whitebags = new ArrayList<>(3);
         blackbags = new ArrayList<>(3);
@@ -122,11 +121,9 @@ public class PebbleGame{
         scanner = new Scanner(System.in);
         random = new Random();
         turn = 0;
-
-        setUp();
     }
 
-    //Getter methods are used for testing purposes only.
+    //Getter and setter methods are used for testing purposes only.
     public ArrayList<ArrayList<AtomicInteger>> getBlackbags() {
         return blackbags;
     }
@@ -145,6 +142,10 @@ public class PebbleGame{
 
     public int getNumPlayers() {
         return numPlayers;
+    }
+
+    public void setNumPlayers(int numPlayers) {
+        this.numPlayers = numPlayers;
     }
 
     /**
@@ -189,7 +190,8 @@ public class PebbleGame{
                 blackbags.add(reader(fileName));      
             }
         }
-        catch (InputMismatchException e){
+        catch (InputMismatchException | IOException | TotalTooLowException
+         | NegativeWeightException | TooFewValuesException e){
             System.out.println("\n"+e.toString()+"\n");
             setUp();
         }
@@ -271,7 +273,6 @@ public class PebbleGame{
         }
     }
 
-
     /**
      * A method to read the CSV files used for the black bags.
      * This reads the file splits the file into strings
@@ -279,22 +280,40 @@ public class PebbleGame{
      * 
      * @param fileName the name of the CSV file.
      * @return the list of integers that was contained within the CSV file.
+     * @throws IOException when an I/O exception has occured.
+     * @throws TotalTooLowException when the max weight possible is too low for a player to win.
+     * @throws NegativeWeightException when a negative or zero weight is used.
      */
-    public ArrayList<AtomicInteger> reader(String fileName){
+    public ArrayList<AtomicInteger> reader(String fileName)
+    throws IOException, TotalTooLowException, NegativeWeightException,
+    TooFewValuesException{
         String text;
+        int highest = 0;
+        int size = 0;
         ArrayList<AtomicInteger> integers = new ArrayList<>();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            while((text = reader.readLine()) != null){
-                for (String string : text.split(",")) {
-                    for (int j = 0; j < numPlayers; j++) {
-                        integers.add(new AtomicInteger(Integer.parseInt(string)));
-                    }
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        while((text = reader.readLine()) != null){
+            for (String string : text.split(",")) {
+                int integer = Integer.parseInt(string);
+                if (integer > highest){
+                    highest = integer;
+                }else if (integer <= 0){// Checks for negative or zero weight pebbles.
+                    reader.close();
+                    throw new NegativeWeightException();
                 }
+                for (int j = 0; j < numPlayers; j++) {
+                    integers.add(new AtomicInteger(integer));
+                }
+                size++;
             }
-        } catch (IOException e) {
-            System.out.println("\n"+e.toString()+"\n");
-            setUp();
+        }
+        
+        reader.close();
+        if ((highest * 10) < 100){ // Checks to see if winning is possible.
+            throw new TotalTooLowException();
+        }else if (size < 11){
+            throw new TooFewValuesException(); // Checks to see if there are enough pebbles.
         }
         return integers;
     }
