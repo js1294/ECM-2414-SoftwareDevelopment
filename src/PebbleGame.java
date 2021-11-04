@@ -167,34 +167,63 @@ public class PebbleGame{
 
         
         try{
+
+            
             
             //Must be at least one players
-            while(numPlayers <= 0){
+            while(numPlayers <= 0 && !winner){
                 System.out.println("Please enter the number of players:");
-                numPlayers = scanner.nextInt();
+                if (scanner.hasNextInt()) { 
+                    numPlayers = scanner.nextInt();
+                } 
+                else if (scanner.hasNext()){
+                                            
+                    String userInput = scanner.next();
+                    //comparing the input value with letter e ignoring the case
+                    if(userInput.equalsIgnoreCase("e")){
+                        winner = true;
+                    }
+                }  
             }
 
-            //Add pebbles to the bags
+
+
+                //Add pebbles to the bags
             scanner.nextLine();
             for (int i = 0; i < 3; i++) {
-                System.out.println("Please enter a location of bag number "+i+" to load:");
-                String fileName = scanner.nextLine();
-                whitebags.add(new ArrayList<>());         
-                blackbags.add(reader(fileName));
+                if(!winner){  
+                    System.out.println("Please enter a location of bag number "+i+" to load:");
+                    String fileName = scanner.nextLine();
+                    if(fileName.equalsIgnoreCase("e")){
+                        winner = true;
+                    } else {                    
+                        whitebags.add(new ArrayList<>());         
+                        blackbags.add(reader(fileName));
+                        
+                    }
+            }
+                    
             }
 
-        }catch (InputMismatchException e){
+        }
+        catch (InputMismatchException e){
             System.out.println("\n"+e.toString()+"\n");
-            scanner.nextLine();
+        //  scanner.nextLine();
             setUp();
         }
 
-        //Each player needs 10 pebbles each.
-        for (int i = 0; i < numPlayers; i++) {
-            players.add(new Player());
-            initialDrawer(players.get(i));           
+        
+
+
+        if(!winner){
+                    //Each player needs 10 pebbles each.
+            for (int i = 0; i < numPlayers; i++) {
+                players.add(new Player());
+                initialDrawer(players.get(i));           
+            }
+            mainGame();
+
         }
-        mainGame();
     }
 
 
@@ -272,6 +301,8 @@ public class PebbleGame{
 
                 if(players.get(turn).totalWeight == 100) {
 
+
+                    System.out.println("\nPlayer " + (turn+1) + "'s total weight is " + players.get(turn).totalWeight);
                     System.out.println("Player " + (turn+1) + " wins!");
                     winner = true;
                     
