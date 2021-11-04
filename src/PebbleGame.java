@@ -270,7 +270,7 @@ public class PebbleGame{
                 drawer(players.get(turn));
                 drawWriter(players.get(turn));
 
-                if(players.get(turn).totalWeight > 75) {
+                if(players.get(turn).totalWeight == 100) {
 
                     System.out.println("Player " + (turn+1) + " wins!");
                     winner = true;
