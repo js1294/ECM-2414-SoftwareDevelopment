@@ -255,21 +255,18 @@ public class PebbleGame{
             discardWriter(players.get(turn));
             drawer(players.get(turn));
             drawWriter(players.get(turn));
+        }else if (scanner.hasNext()){
+            String userInput = scanner.next();
+            //comparing the input value with letter e ignoring the case
+            if(userInput.equalsIgnoreCase("e")){
+                System.exit(0);
         }
+        }        
 
         if(players.get(turn).totalWeight == 100) {
             System.out.println("\nPlayer " + (turn+1) + "'s total weight is " + players.get(turn).totalWeight);
             System.out.println("Player " + (turn+1) + " wins!");
             System.exit(0);  
-        }
-
-        String userInput = "";
-        if (scanner.hasNext()){
-            userInput = scanner.next();
-        }             
-        //comparing the input value with letter e ignoring the case
-        if(userInput.equalsIgnoreCase("e")){
-            System.exit(0);
         }
     }
 
