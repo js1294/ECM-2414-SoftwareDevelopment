@@ -18,7 +18,10 @@ import org.junit.rules.TemporaryFolder;
 
 import src.PebbleGame.Player;
 
-
+/**
+ * This class is used for the testing of pebbles game,
+ * containing both intergration testing and unit tests.
+ */
 public class PebbleGameTest {
 
   private static PebbleGame pebbleGame;
@@ -44,12 +47,18 @@ public class PebbleGameTest {
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
+  /**
+   * This method is used to create static objects of each class.
+   */
   @BeforeClass
   public static void mainSetup(){
     pebbleGame = new PebbleGame();
     player = new Player();
   }
-
+  
+  /**
+   * This method is used to setup files and arrays ready for testing.
+   */
   @Before
   public void setup(){
     validFile = "valid.csv";
@@ -75,6 +84,12 @@ public class PebbleGameTest {
     new AtomicInteger(11)));
   }
 
+  /**
+   * This method is used to create and write temporary files for testing.
+   * 
+   * @param fileName the name of the file being created.
+   * @param write what to write to the file.
+   */
   public void writer(String fileName, String write){
     //Create temporary file
     try {
@@ -90,18 +105,27 @@ public class PebbleGameTest {
     }
   }
 
-  public String[] reader(String fileName){
+  /**
+   * This method is used to read temporary files.
+   * 
+   * @param fileName the file name being read.
+   * @return a list of each line being read.
+   */
+  public String reader(String fileName){
     //Read a Temporary file
-    String[] file = new String[10];
-    int i = 0;
+    StringBuilder builder = new StringBuilder();
+    String line = "";
     try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))){
-      while ((file[i++] = bufferedReader.readLine()) != null){}
+      while ((line = bufferedReader.readLine()) != null){
+        builder.append(line);
+      }
     } catch (IOException e) {
       fail("IOException");
     }
-    return file;
+    return builder.toString();
   }
 
+  //Unit Tests
   @Test
   public void initialDrawerTest(){
 
@@ -303,9 +327,8 @@ public class PebbleGameTest {
     pebbleGame.discardWriter(player);
 
     assertEquals(10, player.getPebbles().size()); //Should have no impact on player's pebbles
-    String[] file = reader(playerFile);
-    assertEquals("player1 has discarded a "+player.getChoice()+" to bag A", file[0]);
-    assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
+    String file = reader(playerFile);
+    assertEquals("player1 has discarded a "+player.getChoice()+" to bag Aplayer1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file);
 
     //Testing that the file has appended correctly and with a choice of 22 and a bag of C.
     player.setPebbles(new ArrayList<>(Arrays.asList(6,2,8,22)));
@@ -316,11 +339,8 @@ public class PebbleGameTest {
 
     assertEquals(4, player.getPebbles().size()); //Should have no impact on player's pebbles
     file = reader(playerFile);
-    assertEquals("player1 has discarded a 2 to bag A", file[0]);
-    assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
-    assertEquals("", file[2]);
-    assertEquals("player1 has discarded a "+player.getChoice()+" to bag C", file[3]);
-    assertEquals("player1 hand is 6, 2, 8, 22", file[4]);
+    assertEquals("player1 has discarded a 2 to bag Aplayer1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10"+
+    "player1 has discarded a "+player.getChoice()+" to bag Cplayer1 hand is 6, 2, 8, 22", file);
   }
 
   @Test
@@ -333,9 +353,9 @@ public class PebbleGameTest {
     pebbleGame.drawWriter(player);
 
     assertEquals(10, player.getPebbles().size()); //Should have no impact on player's pebbles
-    String[] file = reader(playerFile);
-    assertEquals("player1 has drawn a "+player.getPebbles().get(player.getPebbles().size()-1)+" from bag X", file[0]);
-    assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
+    String file = reader(playerFile);
+    assertEquals("player1 has drawn a "+player.getPebbles().get(player.getPebbles().size()-1)+
+    " from bag Xplayer1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file);
 
     //Testing that the file has appended correctly and with a bag of Z.
     player.setPebbles(new ArrayList<>(Arrays.asList(6,2,8,22)));
@@ -345,10 +365,7 @@ public class PebbleGameTest {
 
     assertEquals(4, player.getPebbles().size()); //Should have no impact on player's pebbles
     file = reader(playerFile);
-    assertEquals("player1 has drawn a 10 from bag X", file[0]); //Checking that the file appends correctly
-    assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
-    assertEquals("", file[2]);
-    assertEquals("player1 has drawn a "+player.getPebbles().get(player.getPebbles().size()-1)+" from bag Z", file[3]);
-    assertEquals("player1 hand is 6, 2, 8, 22", file[4]);
+    assertEquals("player1 has drawn a 10 from bag Xplayer1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10"+
+    "player1 has drawn a "+player.getPebbles().get(player.getPebbles().size()-1)+" from bag Zplayer1 hand is 6, 2, 8, 22", file);
   }
 }
