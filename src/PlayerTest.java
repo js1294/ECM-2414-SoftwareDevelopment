@@ -8,12 +8,18 @@ import java.util.InputMismatchException;
 import java.util.ArrayList;
 import src.PebbleGame.Player;
 
+/**
+ * This class is used for the unit tests of the nested class player.
+ */
 public class PlayerTest {
     
   private static Player player;
 
   private static ArrayList<Integer> pebbles;
 
+  /**
+   * This method is used to create static objects of each class.
+   */
   @BeforeClass
   public static void setUpClass(){
     player = new Player();
