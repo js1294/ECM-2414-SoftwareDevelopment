@@ -60,7 +60,7 @@ public class PebbleGame{
             totalWeight = 0;
         }
 
-        //Getter methods are used for testing purposes only.
+        //Getter and setter methods are used for testing purposes only.
         public ArrayList<Integer> getPebbles() {
             return pebbles;
         }
@@ -75,6 +75,18 @@ public class PebbleGame{
 
         public int getChoice() {
             return choice;
+        }
+
+        public void setPebbles(ArrayList<Integer> pebbles) {
+            this.pebbles = pebbles;
+        }
+
+        public void setChoice(int choice) {
+            this.choice = choice;
+        }
+
+        public void setBlackNumber(int blackNumber) {
+            this.blackNumber = blackNumber;
         }
 
         /**
@@ -146,6 +158,14 @@ public class PebbleGame{
 
     public void setNumPlayers(int numPlayers) {
         this.numPlayers = numPlayers;
+    }
+
+    public void setBlackbags(ArrayList<ArrayList<AtomicInteger>> blackbags) {
+        this.blackbags = blackbags;
+    }
+
+    public void setWhitebags(ArrayList<ArrayList<AtomicInteger>> whitebags) {
+        this.whitebags = whitebags;
     }
 
     /**
@@ -251,7 +271,7 @@ public class PebbleGame{
             //adds pebble to whitebag
             ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
             whitebag.add(new AtomicInteger(players.get(turn).choice));
-                    
+
             discardWriter(players.get(turn));
             drawer(players.get(turn));
             drawWriter(players.get(turn));
@@ -364,6 +384,7 @@ public class PebbleGame{
             bw.write("player" + (turn+1) + " has discarded a " + player.choice + " to bag " + (char)(player.blackNumber+'A') );
             bw.newLine();
             bw.write("player" + (turn+1) + " hand is " + list );
+            bw.newLine();
             bw.newLine();
     
         } catch (IOException e) {
