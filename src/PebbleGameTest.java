@@ -294,7 +294,7 @@ public class PebbleGameTest {
 
   @Test
   public void discardWriter(){
-    //Testing with a choice of 2
+    //Testing with a choice of 2 and a bag of A
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     assertEquals(10, player.getPebbles().size());
     player.setChoice(2);
@@ -307,6 +307,7 @@ public class PebbleGameTest {
     assertEquals("player1 has discarded a "+player.getChoice()+" to bag A", file[0]);
     assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
 
+    //Testing that the file has appended correctly and with a choice of 22 and a bag of C.
     player.setPebbles(new ArrayList<>(Arrays.asList(6,2,8,22)));
     player.setChoice(22);
     player.setBlackNumber(2);
@@ -315,7 +316,7 @@ public class PebbleGameTest {
 
     assertEquals(4, player.getPebbles().size()); //Should have no impact on player's pebbles
     file = reader(playerFile);
-    assertEquals("player1 has discarded a 2 to bag A", file[0]); //Checking that the file appends correctly
+    assertEquals("player1 has discarded a 2 to bag A", file[0]);
     assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
     assertEquals("", file[2]);
     assertEquals("player1 has discarded a "+player.getChoice()+" to bag C", file[3]);
@@ -324,6 +325,7 @@ public class PebbleGameTest {
 
   @Test
   public void drawWriter(){
+    //Testing with a bag of X
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     assertEquals(10, player.getPebbles().size());
     player.setBlackNumber(0);
@@ -335,6 +337,7 @@ public class PebbleGameTest {
     assertEquals("player1 has drawn a "+player.getPebbles().get(player.getPebbles().size()-1)+" from bag X", file[0]);
     assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
 
+    //Testing that the file has appended correctly and with a bag of Z.
     player.setPebbles(new ArrayList<>(Arrays.asList(6,2,8,22)));
     player.setBlackNumber(2);
 
