@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ public class PebbleGameTest {
   
   private String tooFewFile;
 
+  private String playerFile;
+
   private ArrayList<ArrayList<AtomicInteger>> blackBags;
 
   private ArrayList<ArrayList<AtomicInteger>> whiteBags;
@@ -52,10 +56,13 @@ public class PebbleGameTest {
     tooLowFile = "tooLowFile.csv";
     negativeFile = "negativeFile.csv";
     tooFewFile = "tooFewFile.csv";
+    playerFile = "player1_output.txt";
+
     writer(validFile, "1,2,3,4,5,6,7,8,9,10,11");
     writer(tooLowFile, "1,1,1,1,1,1,1,1,1,1,1");
     writer(negativeFile, "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,100");
     writer(tooFewFile, "100,100");
+    writer(playerFile, "");
     pebbleGame.setNumPlayers(1);
 
     blackBags = new ArrayList<>(3);
@@ -81,6 +88,18 @@ public class PebbleGameTest {
     } catch (IOException e) {
       fail("IOException");
     }
+  }
+
+  public String[] reader(String fileName){
+    //Read a Temporary file
+    String[] file = new String[10];
+    int i = 0;
+    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))){
+      while ((file[i++] = bufferedReader.readLine()) != null){}
+    } catch (IOException e) {
+      fail("IOException");
+    }
+    return file;
   }
 
   @Test
@@ -275,17 +294,58 @@ public class PebbleGameTest {
 
   @Test
   public void discardWriter(){
+    //Testing with a choice of 2
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     assertEquals(10, player.getPebbles().size());
+    player.setChoice(2);
+    player.setBlackNumber(0);
+
     pebbleGame.discardWriter(player);
-    assertEquals(10, player.getPebbles().size());
+
+    assertEquals(10, player.getPebbles().size()); //Should have no impact on player's pebbles
+    String[] file = reader(playerFile);
+    assertEquals("player1 has discarded a "+player.getChoice()+" to bag A", file[0]);
+    assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
+
+    player.setPebbles(new ArrayList<>(Arrays.asList(6,2,8,22)));
+    player.setChoice(22);
+    player.setBlackNumber(2);
+
+    pebbleGame.discardWriter(player);
+
+    assertEquals(4, player.getPebbles().size()); //Should have no impact on player's pebbles
+    file = reader(playerFile);
+    assertEquals("player1 has discarded a 2 to bag A", file[0]); //Checking that the file appends correctly
+    assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
+    assertEquals("", file[2]);
+    assertEquals("player1 has discarded a "+player.getChoice()+" to bag C", file[3]);
+    assertEquals("player1 hand is 6, 2, 8, 22", file[4]);
   }
 
   @Test
   public void drawWriter(){
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     assertEquals(10, player.getPebbles().size());
+    player.setBlackNumber(0);
+
     pebbleGame.drawWriter(player);
-    assertEquals(10, player.getPebbles().size());
+
+    assertEquals(10, player.getPebbles().size()); //Should have no impact on player's pebbles
+    String[] file = reader(playerFile);
+    assertEquals("player1 has drawn a "+player.getPebbles().get(player.getPebbles().size()-1)+" from bag X", file[0]);
+    assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
+
+    player.setPebbles(new ArrayList<>(Arrays.asList(6,2,8,22)));
+    player.setBlackNumber(2);
+
+    pebbleGame.drawWriter(player);
+
+    assertEquals(4, player.getPebbles().size()); //Should have no impact on player's pebbles
+    file = reader(playerFile);
+    assertEquals("player1 has drawn a 10 from bag X", file[0]); //Checking that the file appends correctly
+    assertEquals("player1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file[1]);
+    assertEquals("", file[2]);
+    assertEquals("player1 has drawn a "+player.getPebbles().get(player.getPebbles().size()-1)+" from bag Z", file[3]);
+    assertEquals("player1 hand is 6, 2, 8, 22", file[4]);
   }
 }
