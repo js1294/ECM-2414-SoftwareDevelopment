@@ -31,18 +31,23 @@ public class PebbleGameTest {
   
   private String tooFewFile;
 
+  private ArrayList<ArrayList<AtomicInteger>> blackBags;
+
+  private ArrayList<ArrayList<AtomicInteger>> whiteBags;
+
+  private ArrayList<AtomicInteger> validBag;
+
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
   @BeforeClass
-  public static void setup(){
+  public static void mainSetup(){
     pebbleGame = new PebbleGame();
     player = new Player();
-    pebbleGame.setNumPlayers(1);
   }
 
   @Before
-  public void fileSetup(){
+  public void setup(){
     validFile = "valid.csv";
     tooLowFile = "tooLowFile.csv";
     negativeFile = "negativeFile.csv";
@@ -51,6 +56,16 @@ public class PebbleGameTest {
     writer(tooLowFile, "1,1,1,1,1,1,1,1,1,1,1");
     writer(negativeFile, "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,100");
     writer(tooFewFile, "100,100");
+    pebbleGame.setNumPlayers(1);
+
+    blackBags = new ArrayList<>(3);
+    whiteBags = new ArrayList<>(3);
+
+    validBag = new ArrayList<>(Arrays.asList(new AtomicInteger(1),
+    new AtomicInteger(2), new AtomicInteger(3), new AtomicInteger(4),
+    new AtomicInteger(5), new AtomicInteger(6), new AtomicInteger(7),
+    new AtomicInteger(8),new AtomicInteger(9), new AtomicInteger(10),
+    new AtomicInteger(11)));
   }
 
   public void writer(String fileName, String write){
@@ -69,15 +84,43 @@ public class PebbleGameTest {
   }
 
   @Test
-  public void drawerTest(){
-    ArrayList<ArrayList<AtomicInteger>> blackBags = new ArrayList<>(3);
-    ArrayList<ArrayList<AtomicInteger>> whiteBags = new ArrayList<>(3);
+  public void initialDrawerTest(){
 
-    ArrayList<AtomicInteger> validBag = new ArrayList<>(Arrays.asList(new AtomicInteger(1),
-    new AtomicInteger(2), new AtomicInteger(3), new AtomicInteger(4),
-    new AtomicInteger(5), new AtomicInteger(6), new AtomicInteger(7),
-    new AtomicInteger(8),new AtomicInteger(9), new AtomicInteger(10),
-    new AtomicInteger(11)));
+    // Test with all black bags filled.
+    blackBags.add(validBag);
+    blackBags.add(validBag);
+    blackBags.add(validBag);
+
+    whiteBags.add(new ArrayList<>());
+    whiteBags.add(new ArrayList<>());
+    whiteBags.add(new ArrayList<>());
+
+    // Validate length of bags is correct for test.
+    assertEquals(11, blackBags.get(0).size());
+    assertEquals(11, blackBags.get(1).size());
+    assertEquals(11, blackBags.get(2).size());
+    assertEquals(0, whiteBags.get(0).size());
+    assertEquals(0, whiteBags.get(1).size());
+    assertEquals(0, whiteBags.get(2).size());
+    assertEquals(1, pebbleGame.getNumPlayers());
+
+    pebbleGame.setBlackbags(blackBags);
+    pebbleGame.setWhitebags(whiteBags);
+
+    player.setPebbles(new ArrayList<>());
+    assertEquals(0, player.getPebbles().size());
+    assertEquals(11, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
+    assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
+
+    pebbleGame.initialDrawer(player);
+
+    assertEquals(10, player.getPebbles().size());
+    assertEquals(1, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
+    assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
+  }
+
+  @Test
+  public void drawerTest(){
 
     // Test with all black bags filled and white bags empty.
     blackBags.add(validBag);
@@ -228,5 +271,21 @@ public class PebbleGameTest {
     } catch (IOException | NegativeWeightException | TotalTooLowException e){
       fail("Invalid Exception");
     } catch (TooFewValuesException e){}
+  }
+
+  @Test
+  public void discardWriter(){
+    player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
+    assertEquals(10, player.getPebbles().size());
+    pebbleGame.discardWriter(player);
+    assertEquals(10, player.getPebbles().size());
+  }
+
+  @Test
+  public void drawWriter(){
+    player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
+    assertEquals(10, player.getPebbles().size());
+    pebbleGame.drawWriter(player);
+    assertEquals(10, player.getPebbles().size());
   }
 }
