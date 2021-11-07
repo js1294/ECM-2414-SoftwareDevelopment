@@ -171,6 +171,10 @@ public class PebbleGame{
         this.whitebags = whitebags;
     }
 
+    public void setPlayers(ArrayList<Player> players) {
+        this.players = players;
+    }
+
     /**
      * This method sets up the game by creating the players
      * , creating the bags and giving pebbles to the players.
@@ -190,9 +194,8 @@ public class PebbleGame{
             while(numPlayers <= 0 && !finished){
                 System.out.println("Please enter the number of players:");
                 if (scanner.hasNextInt()) { 
-                        numPlayers = scanner.nextInt();
-                    } 
-                else if (scanner.hasNext()){        
+                    numPlayers = scanner.nextInt();
+                } else if (scanner.hasNext()){        
                     String userInput = scanner.next();
                     //comparing the input value with letter e ignoring the case
                     if(userInput.equalsIgnoreCase("e")){
@@ -203,20 +206,17 @@ public class PebbleGame{
 
             //Add pebbles to the bags
             scanner.nextLine();
-            for (int i = 0; i < 3; i++) {
-                if(!finished){
-                    System.out.println("Please enter a location of bag number "+i+" to load:");
-                    String fileName = scanner.nextLine();
-                    if(fileName.equalsIgnoreCase("e")){
-                        finished = true;
-                    } else {
-                        whitebags.add(new ArrayList<>());         
-                        blackbags.add(reader(fileName)); 
-                    }                
-
-
+            int index = 0;
+            while (index < 3 && !finished){
+                System.out.println("Please enter a location of bag number "+index+" to load:");
+                String fileName = scanner.nextLine();
+                if(fileName.equalsIgnoreCase("e")){
+                    finished = true;
+                    break;
                 }
-     
+                whitebags.add(new ArrayList<>());         
+                blackbags.add(reader(fileName));
+                index++;             
             }
         }
         catch (InputMismatchException | IOException | TotalTooLowException
@@ -225,18 +225,14 @@ public class PebbleGame{
             setUp();
         }
 
-        if(!finished){
-            //Each player needs 10 pebbles each.
-            for (int i = 0; i < numPlayers; i++) {
-                players.add(new Player());
-                initialDrawer(players.get(i));           
-            }
-            mainGame();
-
-
-            }
-
-
+        //Each player needs 10 pebbles each.
+        int index = 0;
+        while (index < numPlayers && !finished){
+            players.add(new Player());
+            initialDrawer(players.get(index)); 
+            index++;          
+        }
+        mainGame();
     }
 
     /**
@@ -276,12 +272,10 @@ public class PebbleGame{
      * The method that will be run in a thread for each player.
      */
     public void playerThead(){
-        if(!finished){
-            if(players.get(turn).totalWeight == 100) {
-                System.out.println("\nPlayer " + (turn+1) + "'s total weight is " + players.get(turn).totalWeight);
-                System.out.println("Player " + (turn+1) + " wins!");
-                finished = true; 
-            }
+        if(players.get(turn).totalWeight == 100 && !finished) {
+            System.out.println("\nPlayer " + (turn+1) + "'s total weight is " + players.get(turn).totalWeight);
+            System.out.println("Player " + (turn+1) + " wins!");
+            finished = true; 
         }
 
         if(!finished){
