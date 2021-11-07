@@ -136,7 +136,6 @@ public class PebbleGame{
         random = new Random();
         turn = 0;
 
-        setUp();
     }
 
     //Getter and setter methods are used for testing purposes only.
