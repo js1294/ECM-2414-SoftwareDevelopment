@@ -91,6 +91,10 @@ public class PebbleGame{
             this.blackNumber = blackNumber;
         }
 
+        public void setTotalWeight(int totalWeight) {
+            this.totalWeight = totalWeight;
+        }
+
         /**
          * The adder method for the list of pebbles.
          * Also, adds to total weight.
@@ -159,6 +163,10 @@ public class PebbleGame{
         return numPlayers;
     }
 
+    public boolean getFinished() {
+        return finished;
+    }
+
     public void setNumPlayers(int numPlayers) {
         this.numPlayers = numPlayers;
     }
@@ -173,6 +181,14 @@ public class PebbleGame{
 
     public void setPlayers(ArrayList<Player> players) {
         this.players = players;
+    }
+
+    public void setScanner(Scanner scanner) {
+        this.scanner = scanner;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
     }
 
     /**
@@ -263,62 +279,57 @@ public class PebbleGame{
                 }
             }
             mainGame();
-
         }
-
     }
 
     /**
      * The method that will be run in a thread for each player.
      */
     public void playerThead(){
-        if(players.get(turn).totalWeight == 100 && !finished) {
-            System.out.println("\nPlayer " + (turn+1) + "'s total weight is " + players.get(turn).totalWeight);
-            System.out.println("Player " + (turn+1) + " wins!");
-            finished = true; 
-        }
-
-        if(!finished){
+        //shows the player their pebbles and total weight on each turn
+        if (!finished){
             
-            //shows the player their pebbles and total weight on each turn        
             System.out.println("\nPlayer "+(turn+1)+"'s turn");
             System.out.println("Your current pebbles are: "+ players.get(turn).pebbles);
             System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
             System.out.println("Please enter a pebble to discard:");
-            
+
             if (scanner.hasNextInt()){
                 players.get(turn).choice = scanner.nextInt();
                 //removes chosen pebble along with its weight
-                players.get(turn).removePebble(players.get(turn).choice);
-                        
-                //adds pebble to whitebag
-                ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
-                whitebag.add(new AtomicInteger(players.get(turn).choice));
-
-                discardWriter(players.get(turn));
-                drawer(players.get(turn));
-                drawWriter(players.get(turn));
-
+                try {
+                    players.get(turn).removePebble(players.get(turn).choice);
+                } catch (NullPointerException e) {
+                    System.out.println("\n"+e.toString()+"\n");
+                    System.out.println("Please enter a valid pebble.");
+                    playerThead();
+                }
+                if (players.get(turn).pebbles.size() == 9){
+                    //adds pebble to whitebag
+                    ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
+                    whitebag.add(new AtomicInteger(players.get(turn).choice));
+        
+                    discardWriter(players.get(turn));
+                    drawer(players.get(turn));
+                    drawWriter(players.get(turn));
+                }
+    
             }else if (scanner.hasNext()){
                 String userInput = scanner.next();
                 if(userInput.equalsIgnoreCase("e")){
                     finished = true;
+                }else{
+                    System.out.println("Please enter a valid pebble.");
+                    playerThead();
                 }
             }        
+        }   
 
-            if(players.get(turn).totalWeight == 100) {
-                System.out.println("\nPlayer " + (turn+1) + "'s total weight is " + players.get(turn).totalWeight);
-                System.out.println("Player " + (turn+1) + " wins!");
-                finished = true; 
-            }
-
-
+        if(players.get(turn).totalWeight == 100) {
+            System.out.println("\nPlayer " + (turn+1) + "'s total weight is " + players.get(turn).totalWeight);
+            System.out.println("Player " + (turn+1) + " wins!");
+            finished = true; 
         }
-
-
-
-        
-
     }
 
     /**
