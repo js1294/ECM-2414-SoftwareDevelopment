@@ -1,6 +1,7 @@
 package src;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -60,8 +61,6 @@ public class PebbleGameTest {
   public static void mainSetup(){
     pebbleGame = new PebbleGame();
     player = new Player();
-    ArrayList<Player> players = new ArrayList<>(Arrays.asList(player));
-    pebbleGame.setPlayers(players);
   }
   
   /**
@@ -80,7 +79,6 @@ public class PebbleGameTest {
     writer(negativeFile, "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,100");
     writer(tooFewFile, "100,100");
     writer(playerFile, "");
-    pebbleGame.setNumPlayers(1);
 
     blackBags = new ArrayList<>(3);
     whiteBags = new ArrayList<>(3);
@@ -93,6 +91,18 @@ public class PebbleGameTest {
 
     out = new ByteArrayOutputStream();
     System.setOut(new PrintStream(out)); // Sets the output stream, so that it can be read.
+
+    //Setting default values
+    ArrayList<Player> players = new ArrayList<>(Arrays.asList(player));
+    pebbleGame.setPlayers(players);
+    pebbleGame.setTurn(0);
+    pebbleGame.setFinished(false);
+    pebbleGame.setNumPlayers(1);
+
+    player.setBlackNumber(0);
+    player.setChoice(0);
+    player.setPebbles(new ArrayList<>());
+    player.setTotalWeight(0);
   }
 
   @After
@@ -154,8 +164,99 @@ public class PebbleGameTest {
     pebbleGame.setScanner(new Scanner(System.in)); //Set scanner to correct input stream.
   }
 
+  /**
+   * This is the intergration test for pebbleGame.
+   * 
+   * The first tests are to test that each input will exit immediatly upon entering e.
+   */
   @Test
   public void pebbleGameTest(){
+
+    //Testing that e will stop at each input, currently when prompted to enter the number of players.
+    assertEquals(false, pebbleGame.getFinished());
+
+    testInput("e"+System.lineSeparator()+"");
+    pebbleGame.setUp();
+
+    assertEquals(true, pebbleGame.getFinished());
+    assertTrue(out.toString().contains("Please enter the number of players:"));
+    assertFalse(out.toString().contains("Please enter a location of bag number 0 to load:")); //Should stop immediately
+
+    // Testing that at the first location of the bag should exit on entering e.
+    pebbleGame.setFinished(false);
+    assertEquals(false, pebbleGame.getFinished());
+
+    testInput("3"+System.lineSeparator()+"e");
+    pebbleGame.setUp();
+
+    assertEquals(true, pebbleGame.getFinished());
+    assertTrue(out.toString().contains("Please enter the number of players:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 0 to load:"));
+    assertFalse(out.toString().contains("Please enter a location of bag number 1 to load:")); //Should stop immediately
+
+    // Testing that at the second location of the bag should exit on entering e.
+    pebbleGame.setFinished(false);
+    assertEquals(false, pebbleGame.getFinished());
+
+    testInput("3"+System.lineSeparator()+validFile+System.lineSeparator()+"e");
+    pebbleGame.setUp();
+
+    assertEquals(true, pebbleGame.getFinished());
+    assertTrue(out.toString().contains("Please enter the number of players:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 0 to load:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 1 to load:"));
+    assertFalse(out.toString().contains("Please enter a location of bag number 2 to load:")); //Should stop immediately
+
+    // Testing that at the third location of the bag should exit on entering e.
+    pebbleGame.setFinished(false);
+    assertEquals(false, pebbleGame.getFinished());
+
+    testInput("3"+System.lineSeparator()+validFile+System.lineSeparator()+validFile+System.lineSeparator()+"e");
+    pebbleGame.setUp();
+
+    assertEquals(true, pebbleGame.getFinished());
+    assertTrue(out.toString().contains("Please enter the number of players:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 0 to load:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 1 to load:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 2 to load:"));
+    assertFalse(out.toString().contains("Please enter a pebble to discard:")); //Should stop immediately
+
+    // Testing that at the first player discarding a pebble it should stop.
+    pebbleGame.setFinished(false);
+    assertEquals(false, pebbleGame.getFinished());
+
+    testInput("3"+System.lineSeparator()+validFile+System.lineSeparator()+validFile+System.lineSeparator()+
+    validFile+System.lineSeparator()+"e");
+    pebbleGame.setUp();
+
+    assertEquals(true, pebbleGame.getFinished());
+    assertTrue(out.toString().contains("Please enter the number of players:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 0 to load:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 1 to load:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 2 to load:"));
+    assertTrue(out.toString().contains("Player 1's turn"));
+    assertFalse(out.toString().contains("Player 2's turn")); //Should stop immediately
+
+    // Testing that at the second player discarding a pebble it should stop.
+    pebbleGame.setFinished(false);
+    assertEquals(false, pebbleGame.getFinished());
+
+    // Gets the list of player, gets the first players pebbles, get the first pebble and turns it into a string.
+    String pebble = pebbleGame.getPlayers().get(0).getPebbles().get(0).toString();
+
+    testInput("3"+System.lineSeparator()+validFile+System.lineSeparator()+validFile+System.lineSeparator()+
+    validFile+System.lineSeparator()+pebble+System.lineSeparator()+"e");
+    pebbleGame.setUp();
+
+    assertEquals(true, pebbleGame.getFinished());
+    assertTrue(out.toString().contains("Please enter the number of players:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 0 to load:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 1 to load:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 2 to load:"));
+    assertTrue(out.toString().contains("Player 1's turn"));
+    assertTrue(out.toString().contains("Player 2's turn"));
+    assertFalse(out.toString().contains("Player 3's turn")); //Should stop immediately
+
 
   }
 
@@ -179,11 +280,7 @@ public class PebbleGameTest {
   @Test
   public void playerThreadTest(){
 
-    //Reset values, Test that if e is entered the game ends.
-    pebbleGame.setFinished(false);
-    player.setPebbles(new ArrayList<>());
-    player.setTotalWeight(0);
-
+    //Test that if e is entered the game ends.
     assertEquals(0, player.getPebbles().size());
     assertEquals(false, pebbleGame.getFinished());
 
@@ -583,7 +680,6 @@ public class PebbleGameTest {
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     assertEquals(10, player.getPebbles().size());
     player.setChoice(2);
-    player.setBlackNumber(0);
 
     pebbleGame.discardWriter(player);
 
@@ -617,7 +713,6 @@ public class PebbleGameTest {
     //Testing with a bag of X
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     assertEquals(10, player.getPebbles().size());
-    player.setBlackNumber(0);
 
     pebbleGame.drawWriter(player);
 
