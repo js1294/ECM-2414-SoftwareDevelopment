@@ -239,7 +239,7 @@ public class PebbleGame{
                 index++;             
             }
         }
-        catch (InputMismatchException | IOException | TotalTooLowException
+        catch (InputMismatchException | IOException
          | NegativeWeightException | TooFewValuesException e){
             System.out.println("\n"+e.toString()+"\n");
             setUp();
@@ -346,14 +346,12 @@ public class PebbleGame{
      * @param fileName the name of the CSV file.
      * @return the list of integers that was contained within the CSV file.
      * @throws IOException when an I/O exception has occured.
-     * @throws TotalTooLowException when the max weight possible is too low for a player to win.
      * @throws NegativeWeightException when a negative or zero weight is used.
      */
     public ArrayList<AtomicInteger> reader(String fileName)
-    throws IOException, TotalTooLowException, NegativeWeightException,
+    throws IOException, NegativeWeightException,
     TooFewValuesException{
         String text;
-        int highest = 0;
         int size = 0;
         ArrayList<AtomicInteger> integers = new ArrayList<>();
 
@@ -361,9 +359,7 @@ public class PebbleGame{
         while((text = reader.readLine()) != null){
             for (String string : text.split(",")) {
                 int integer = Integer.parseInt(string);
-                if (integer > highest){
-                    highest = integer;
-                }else if (integer <= 0){// Checks for negative or zero weight pebbles.
+                if (integer <= 0){// Checks for negative or zero weight pebbles.
                     reader.close();
                     throw new NegativeWeightException();
                 }
@@ -373,11 +369,8 @@ public class PebbleGame{
                 size++;
             }
         }
-        
         reader.close();
-        if ((highest * 10) < 100){ // Checks to see if winning is possible.
-            throw new TotalTooLowException();
-        }else if (size < 11){
+        if (size < 11){
             throw new TooFewValuesException(); // Checks to see if there are enough pebbles.
         }
         return integers;
@@ -460,4 +453,3 @@ public class PebbleGame{
         }
     }
 }
-

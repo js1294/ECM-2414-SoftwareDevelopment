@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +48,10 @@ public class PebbleGameTest {
 
   private ByteArrayOutputStream out;
 
+  private static PrintStream backupOut;
+
+  private static InputStream backupIn;
+
   @Rule
   public TemporaryFolder folder = new TemporaryFolder(); // Used to create a temporary file.
 
@@ -57,6 +62,8 @@ public class PebbleGameTest {
   public static void mainSetup(){
     pebbleGame = new PebbleGame();
     player = new Player();
+    backupOut = System.out; // Used for resetting the input and output stream
+    backupIn = System.in;
   }
 
     /**
@@ -106,8 +113,8 @@ public class PebbleGameTest {
    */
   @After
   public void restoreInput(){
-    System.setIn(System.in);
-    System.setOut(System.out);
+    System.setIn(backupIn);
+    System.setOut(backupOut);
   }
 
   /**
@@ -143,6 +150,9 @@ public class PebbleGameTest {
     player.setChoice(0);
     player.setPebbles(new ArrayList<>());
     player.setTotalWeight(0);
+
+    out = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(out)); // Sets the output stream, so that it can be read.
   }
 
   /**
@@ -304,7 +314,7 @@ public class PebbleGameTest {
     assertTrue(out.toString().contains("Please enter a location of bag number 0 to load:"));
     assertFalse(out.toString().contains("IOException"));
 
-    //Testing that a negative number of players will result in it being asked again.
+    //Testing that a string inputted as a number of players will result in it being asked again.
     setupEmpty();
     assertEquals(false, pebbleGame.getFinished());
 
@@ -323,15 +333,17 @@ public class PebbleGameTest {
    * 
    * The first test is to test that inputting e ends the game.
    * 
-   * The second test is to test that a total of 100 will lead to a player to win.
+   * The second test is to test that a total of 100 at the start would lead to a player to win.
    * 
-   * The third test is to test that will all values being correct,
+   * The third test is to test that a total of 100 will lead to a player to win.
+   * 
+   * The fourth test is to test that will all values being correct,
    * a player can remove a pebble and have a random one added again.
    * 
-   * The fouth test is to test if inputting an incorrect integer value
+   * The fifth test is to test if inputting an incorrect integer value
    * will result in a error before requiring another input.
    * 
-   * The fifth test is to test if inputting a string value will result
+   * The sixth test is to test if inputting a string value will result
    * in an error before requiring another input.
    */
   @Test
@@ -399,7 +411,6 @@ public class PebbleGameTest {
     testInput("2"); // Should remove this pebble and then add a random other
     pebbleGame.playerThead();
 
-    assertTrue(out.toString().contains("Player 1 wins"));
     assertEquals(10, player.getPebbles().size());
     assertTrue(2 != player.getPebbles().get(1)); // Check 2 was removed.
     assertTrue(10 == player.getPebbles().get(8)); // Check 10 was shifted down an index.
@@ -407,7 +418,7 @@ public class PebbleGameTest {
     assertEquals(false, pebbleGame.getFinished());
     assertEquals(1, pebbleGame.getNumPlayers());
 
-    //Reset values, Test that successfully removes pebble and adds a new one.
+    //Reset values, test that trying to add an invalid integer will result in an error.
     setupValid();
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     player.setTotalWeight(55);
@@ -431,7 +442,7 @@ public class PebbleGameTest {
     assertEquals(false, pebbleGame.getFinished());
     assertEquals(1, pebbleGame.getNumPlayers());
     
-    //Reset values, Test that successfully removes pebble and adds a new one.
+    //Reset values, test that trying to add a string will result in an error.
     setupValid();
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     player.setTotalWeight(55);
@@ -552,34 +563,16 @@ public class PebbleGameTest {
       pebbleGame.setNumPlayers(100);
       pebbles = pebbleGame.reader(validFile);
       assertTrue(110 <= pebbles.size());
-    } catch (IOException | TotalTooLowException | NegativeWeightException | TooFewValuesException e) {
+    } catch (IOException | NegativeWeightException | TooFewValuesException e) {
       fail("Invalid Exception");
     }
-
-    //Testing using one player, csv file which would result in no player being able to win.
-    try {
-      pebbleGame.setNumPlayers(1);
-      pebbleGame.reader(tooLowFile);
-      fail("No FileWeightTooLowException");
-    } catch (IOException | TooFewValuesException | NegativeWeightException e){
-      fail("Invalid Exception");
-    } catch (TotalTooLowException e){}
-
-    //Testing using hundred players, csv file which would result in no player being able to win.
-    try {
-      pebbleGame.setNumPlayers(100);
-      pebbleGame.reader(tooLowFile);
-      fail("No FileWeightTooLowException");
-    } catch (IOException | TooFewValuesException | NegativeWeightException e){
-      fail("Invalid Exception");
-    } catch (TotalTooLowException e){}
 
     //Testing using one player, csv file would result in negative pebbles in the bags.
     try {
       pebbleGame.setNumPlayers(1);
       pebbleGame.reader(negativeFile);
       fail("No NegativeWeightPebbleException");
-    } catch (IOException | TooFewValuesException | TotalTooLowException e){
+    } catch (IOException | TooFewValuesException e){
       fail("Invalid Exception");
     } catch (NegativeWeightException e){}
 
@@ -588,7 +581,7 @@ public class PebbleGameTest {
       pebbleGame.setNumPlayers(100);
       pebbleGame.reader(negativeFile);
       fail("No NegativeWeightPebbleException");
-    } catch (IOException | TooFewValuesException | TotalTooLowException e){
+    } catch (IOException | TooFewValuesException e){
       fail("Invalid Exception");
     } catch (NegativeWeightException e){}
 
@@ -597,7 +590,7 @@ public class PebbleGameTest {
       pebbleGame.setNumPlayers(1);
       pebbleGame.reader(tooFewFile);
       fail("No TooFewValuesException");
-    } catch (IOException | NegativeWeightException | TotalTooLowException e){
+    } catch (IOException | NegativeWeightException e){
       fail("Invalid Exception");
     } catch (TooFewValuesException e){}
 
@@ -606,7 +599,7 @@ public class PebbleGameTest {
       pebbleGame.setNumPlayers(100);
       pebbleGame.reader(tooFewFile);
       fail("No TooFewValuesException");
-    } catch (IOException | NegativeWeightException | TotalTooLowException e){
+    } catch (IOException | NegativeWeightException e){
       fail("Invalid Exception");
     } catch (TooFewValuesException e){}
   }
