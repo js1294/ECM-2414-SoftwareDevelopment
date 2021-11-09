@@ -48,8 +48,7 @@ public class PebbleGame{
 
         private int totalWeight; // Stores the total weight of all the pebbles, used for winning the game.
 
-        private int blackNumber; // Stores the index of the black bag to make sure the player report file
-        // and white bag discarded to is correct.
+        private int blackNumber; // Stores the index of the random black bag to identify paired white bag.
 
         private int choice; // Stores the pebble that will be removed.
 
@@ -216,8 +215,7 @@ public class PebbleGame{
                     numPlayers = scanner.nextInt();
                 } else if (scanner.hasNext()){        
                     String userInput = scanner.next();
-                    //comparing the input value with letter e ignoring the case
-                    if(userInput.equalsIgnoreCase("e")){
+                    if(userInput.equals("E")){
                         finished = true;
                     }
                 }  
@@ -229,7 +227,7 @@ public class PebbleGame{
             while (index < 3 && !finished){
                 System.out.println("Please enter a location of bag number "+index+" to load:");
                 String fileName = scanner.nextLine();
-                if(fileName.equalsIgnoreCase("e")){
+                if(fileName.equals("E")){
                     finished = true;
                     break;
                 }
@@ -321,7 +319,7 @@ public class PebbleGame{
 
             }else if (scanner.hasNext()){
                 String userInput = scanner.next();
-                if(userInput.equalsIgnoreCase("e")){
+                if(userInput.equals("E")){
                     finished = true;
                 }else{
                     System.out.println("Please enter a valid pebble.");
@@ -431,7 +429,6 @@ public class PebbleGame{
             bw.write("player" + (turn+1) + " has discarded a " + player.choice + " to bag " + (char)(player.blackNumber+'A') );
             bw.newLine();
             bw.write("player" + (turn+1) + " hand is " + list );
-            bw.newLine();
             bw.newLine();
     
         } catch (IOException e) {
