@@ -199,20 +199,18 @@ public class PebbleGame{
      * , creating the bags and giving pebbles to the players.
      */
     public void setUp(){
-        System.out.println("Welcome to the PebbleGame!!\n"+
-        "You will be asked to enter the number of players\n"+
-        "and then for the location of three files in turn containing "+
-        "comma seperated intger values for the pebbles weights. "+
-        "The integer values must be strictly positive.\n"+
-        "The game will then be simulated, and the output written to rules in this directory.\n"+
-        "To exit the game press 'E' at any input.");
+        System.out.println("\n****WELCOME TO PEBBLEGAME****\n"+
+        "\nYou will first be asked to enter the number of players,\n"+
+        "and then for the location of three files containing positive comma-separated-integers.\n"+
+        "The game will then be played until a winning player has achieved a total weight of 100.\n"+
+        "To exit the game, enter 'E' at any input.\n");
 
         numPlayers = 0;
 
         try{
             //Must be at least one players
             while(numPlayers <= 0 && !finished){
-                System.out.println("Please enter the number of players:");
+                System.out.println("\nPlease enter the number of players:");
                 if (scanner.hasNextInt()) { 
                     numPlayers = scanner.nextInt();
                 } else if (scanner.hasNext()){        
