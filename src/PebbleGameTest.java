@@ -69,8 +69,8 @@ public class PebbleGameTest {
     pebbleGame.setTurn(0);
     pebbleGame.setFinished(false);
     pebbleGame.setNumPlayers(1);
-    pebbleGame.setBlackbags(new ArrayList<>(3));
-    pebbleGame.setWhitebags(new ArrayList<>(3));
+    pebbleGame.setBlackbags(new ArrayList<>());
+    pebbleGame.setWhitebags(new ArrayList<>(Arrays.asList(new ArrayList<>(),new ArrayList<>(),new ArrayList<>())));
 
     player.setBlackNumber(0);
     player.setChoice(0);
@@ -110,7 +110,7 @@ public class PebbleGameTest {
     System.setOut(System.out);
   }
 
-    /**
+  /**
    * This method sets everything up with the black bags filled with a valid set of pebbles
    */
   public void setupValid(){
@@ -207,18 +207,16 @@ public class PebbleGameTest {
   public void pebbleGameTest(){
 
     //Testing that e will stop at each input, currently when prompted to enter the number of players.
-    setupEmpty();
-    createFiles();
     assertEquals(false, pebbleGame.getFinished());
 
-    testInput("e"+System.lineSeparator()+"");
+    testInput("E"+System.lineSeparator()+"");
     pebbleGame.setUp();
 
     assertEquals(true, pebbleGame.getFinished());
     assertTrue(out.toString().contains("Please enter the number of players:"));
     assertFalse(out.toString().contains("Please enter a location of bag number 0 to load:")); //Should stop immediately
 
-    // Testing that at the first location of the bag should exit on entering E.
+    // Testing that at the first location of the bag should exit on entering e.
     setupEmpty();
     assertEquals(false, pebbleGame.getFinished());
 
@@ -230,7 +228,7 @@ public class PebbleGameTest {
     assertTrue(out.toString().contains("Please enter a location of bag number 0 to load:"));
     assertFalse(out.toString().contains("Please enter a location of bag number 1 to load:")); //Should stop immediately
 
-    // Testing that at the second location of the bag should exit on entering E.
+    // Testing that at the second location of the bag should exit on entering e.
     setupEmpty();
     assertEquals(false, pebbleGame.getFinished());
 
@@ -243,7 +241,7 @@ public class PebbleGameTest {
     assertTrue(out.toString().contains("Please enter a location of bag number 1 to load:"));
     assertFalse(out.toString().contains("Please enter a location of bag number 2 to load:")); //Should stop immediately
 
-    // Testing that at the third location of the bag should exit on entering E.
+    // Testing that at the third location of the bag should exit on entering e.
     setupEmpty();
     assertEquals(false, pebbleGame.getFinished());
 
@@ -303,8 +301,6 @@ public class PebbleGameTest {
     assertTrue(out.toString().contains("Please enter the number of players:"));
     assertTrue(out.toString().contains("Please enter a location of bag number 0 to load:"));
     assertFalse(out.toString().contains("IOException"));
-
-
   }
 
   /**
@@ -328,9 +324,8 @@ public class PebbleGameTest {
   public void playerThreadTest(){
 
     //Test that if e is entered the game ends.
-    setupEmpty();
 
-    testInput("e");
+    testInput("E");
     pebbleGame.playerThead();
 
     assertEquals(0, player.getPebbles().size()); //Check no pebble was removed.
@@ -469,20 +464,6 @@ public class PebbleGameTest {
     assertEquals(10, player.getPebbles().size());
     assertEquals(1, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
     assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
-
-    setupEmpty();
-
-    player.setPebbles(new ArrayList<>());
-    assertEquals(0, player.getPebbles().size());
-    assertEquals(1, pebbleGame.getNumPlayers());
-    assertEquals(0, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
-    assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
-
-    pebbleGame.initialDrawer(player);
-
-    assertEquals(10, player.getPebbles().size());
-    assertEquals(1, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
-    assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
   }
 
   /**
@@ -540,8 +521,6 @@ public class PebbleGameTest {
    */
   @Test
   public void readerTest(){
-    setupEmpty();
-    createFiles();
     ArrayList<AtomicInteger> pebbles;
 
     try {
@@ -628,7 +607,6 @@ public class PebbleGameTest {
    */
   @Test
   public void discardWriterTest(){
-    createFiles();
 
     //Testing with a choice of 2 and a bag of A
     setupEmpty();
@@ -666,10 +644,8 @@ public class PebbleGameTest {
    */
   @Test
   public void drawWriterTest(){
-    createFiles();
 
     //Testing with a bag of X
-    setupEmpty();
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     assertEquals(10, player.getPebbles().size());
 
