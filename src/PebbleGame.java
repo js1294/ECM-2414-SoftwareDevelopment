@@ -423,6 +423,7 @@ public class PebbleGame{
             bw.newLine();
             bw.write("player" + (turn+1) + " hand is " + list );
             bw.newLine();
+            bw.newLine();
     
         } catch (IOException e) {
             System.out.println("\n"+e.toString()+"\n");
