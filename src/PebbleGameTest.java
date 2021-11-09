@@ -202,6 +202,8 @@ public class PebbleGameTest {
    * This is the intergration test for pebbleGame.
    * 
    * The first tests are to test that each input will exit immediatly upon entering e.
+   * 
+   * The second tests is to check that you cannot enter a negative number or string of players.
    */
   @Test
   public void pebbleGameTest(){
@@ -295,6 +297,18 @@ public class PebbleGameTest {
     assertEquals(false, pebbleGame.getFinished());
 
     testInput("-1"+System.lineSeparator()+"1"+System.lineSeparator()+"E");
+    pebbleGame.setUp();
+
+    assertEquals(true, pebbleGame.getFinished());
+    assertTrue(out.toString().contains("Please enter the number of players:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 0 to load:"));
+    assertFalse(out.toString().contains("IOException"));
+
+    //Testing that a negative number of players will result in it being asked again.
+    setupEmpty();
+    assertEquals(false, pebbleGame.getFinished());
+
+    testInput("string"+System.lineSeparator()+"1"+System.lineSeparator()+"E");
     pebbleGame.setUp();
 
     assertEquals(true, pebbleGame.getFinished());
@@ -436,7 +450,7 @@ public class PebbleGameTest {
     assertEquals(10, player.getPebbles().size());
     assertTrue(2 != player.getPebbles().get(1)); // Check 2 was removed.
     assertTrue(10 == player.getPebbles().get(8)); // Check 10 was shifted down an index.
-    assertTrue(1 <= player.getPebbles().get(9) && 10 >= player.getPebbles().get(9)); // A random number was added from the bags.
+    assertTrue(1 <= player.getPebbles().get(9) && 11 >= player.getPebbles().get(9)); // A random number was added from the bags.
     assertEquals(false, pebbleGame.getFinished());
     assertEquals(1, pebbleGame.getNumPlayers());
   }
