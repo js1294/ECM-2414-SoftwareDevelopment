@@ -43,11 +43,7 @@ public class PebbleGameTest {
 
   private String playerFile;
 
-  private ArrayList<ArrayList<AtomicInteger>> blackBags;
-
-  private ArrayList<ArrayList<AtomicInteger>> whiteBags;
-
-  private ArrayList<AtomicInteger> validBag;
+  private String samefile;
 
   private ByteArrayOutputStream out;
 
@@ -62,16 +58,39 @@ public class PebbleGameTest {
     pebbleGame = new PebbleGame();
     player = new Player();
   }
-  
-  /**
-   * This method is used to setup files and arrays ready for testing.
+
+    /**
+   * This method sets up the test with everything at a default value.
    */
   @Before
-  public void setup(){
+  public void setupEmpty(){
+    ArrayList<Player> players = new ArrayList<>(Arrays.asList(player));
+    pebbleGame.setPlayers(players);
+    pebbleGame.setTurn(0);
+    pebbleGame.setFinished(false);
+    pebbleGame.setNumPlayers(1);
+    pebbleGame.setBlackbags(new ArrayList<>(3));
+    pebbleGame.setWhitebags(new ArrayList<>(3));
+
+    player.setBlackNumber(0);
+    player.setChoice(0);
+    player.setPebbles(new ArrayList<>());
+    player.setTotalWeight(0);
+    
+    out = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(out)); // Sets the output stream, so that it can be read.
+  }
+
+  /**
+   * This method is used to create some temporary files used for reading and writing to.
+   */
+  @Before
+  public void createFiles(){
     validFile = "valid.csv";
     tooLowFile = "tooLowFile.csv";
     negativeFile = "negativeFile.csv";
     tooFewFile = "tooFewFile.csv";
+    samefile = "sameFile.csv";
     playerFile = "player1_output.txt";
 
     writer(validFile, "1,2,3,4,5,6,7,8,9,10,11");
@@ -79,36 +98,51 @@ public class PebbleGameTest {
     writer(negativeFile, "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,100");
     writer(tooFewFile, "100,100");
     writer(playerFile, "");
+    writer(samefile, "11,11,11,11,11,11,11,11,11,11,11");
+  }
 
-    blackBags = new ArrayList<>(3);
-    whiteBags = new ArrayList<>(3);
+  /**
+   * This method restores both the input and output stream to system.in or system.out.
+   */
+  @After
+  public void restoreInput(){
+    System.setIn(System.in);
+    System.setOut(System.out);
+  }
 
-    validBag = new ArrayList<>(Arrays.asList(new AtomicInteger(1),
+    /**
+   * This method sets everything up with the black bags filled with a valid set of pebbles
+   */
+  public void setupValid(){
+    ArrayList<ArrayList<AtomicInteger>> blackBags = new ArrayList<>(3);
+    ArrayList<ArrayList<AtomicInteger>> whiteBags = new ArrayList<>(3);
+
+    ArrayList<AtomicInteger> validBag = new ArrayList<>(Arrays.asList(new AtomicInteger(1),
     new AtomicInteger(2), new AtomicInteger(3), new AtomicInteger(4),
     new AtomicInteger(5), new AtomicInteger(6), new AtomicInteger(7),
     new AtomicInteger(8),new AtomicInteger(9), new AtomicInteger(10),
     new AtomicInteger(11)));
 
-    out = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(out)); // Sets the output stream, so that it can be read.
+    blackBags.add(validBag);
+    blackBags.add(validBag);
+    blackBags.add(validBag);
+    
+    whiteBags.add(new ArrayList<>());
+    whiteBags.add(new ArrayList<>());
+    whiteBags.add(new ArrayList<>());
 
-    //Setting default values
     ArrayList<Player> players = new ArrayList<>(Arrays.asList(player));
     pebbleGame.setPlayers(players);
     pebbleGame.setTurn(0);
     pebbleGame.setFinished(false);
     pebbleGame.setNumPlayers(1);
+    pebbleGame.setBlackbags(blackBags);
+    pebbleGame.setWhitebags(whiteBags);
 
     player.setBlackNumber(0);
     player.setChoice(0);
     player.setPebbles(new ArrayList<>());
     player.setTotalWeight(0);
-  }
-
-  @After
-  public void restoreInput(){
-    System.setIn(System.in);
-    System.setOut(System.out);
   }
 
   /**
@@ -173,6 +207,8 @@ public class PebbleGameTest {
   public void pebbleGameTest(){
 
     //Testing that e will stop at each input, currently when prompted to enter the number of players.
+    setupEmpty();
+    createFiles();
     assertEquals(false, pebbleGame.getFinished());
 
     testInput("e"+System.lineSeparator()+"");
@@ -183,7 +219,7 @@ public class PebbleGameTest {
     assertFalse(out.toString().contains("Please enter a location of bag number 0 to load:")); //Should stop immediately
 
     // Testing that at the first location of the bag should exit on entering e.
-    pebbleGame.setFinished(false);
+    setupEmpty();
     assertEquals(false, pebbleGame.getFinished());
 
     testInput("3"+System.lineSeparator()+"e");
@@ -195,7 +231,7 @@ public class PebbleGameTest {
     assertFalse(out.toString().contains("Please enter a location of bag number 1 to load:")); //Should stop immediately
 
     // Testing that at the second location of the bag should exit on entering e.
-    pebbleGame.setFinished(false);
+    setupEmpty();
     assertEquals(false, pebbleGame.getFinished());
 
     testInput("3"+System.lineSeparator()+validFile+System.lineSeparator()+"e");
@@ -208,7 +244,7 @@ public class PebbleGameTest {
     assertFalse(out.toString().contains("Please enter a location of bag number 2 to load:")); //Should stop immediately
 
     // Testing that at the third location of the bag should exit on entering e.
-    pebbleGame.setFinished(false);
+    setupEmpty();
     assertEquals(false, pebbleGame.getFinished());
 
     testInput("3"+System.lineSeparator()+validFile+System.lineSeparator()+validFile+System.lineSeparator()+"e");
@@ -222,7 +258,7 @@ public class PebbleGameTest {
     assertFalse(out.toString().contains("Please enter a pebble to discard:")); //Should stop immediately
 
     // Testing that at the first player discarding a pebble it should stop.
-    pebbleGame.setFinished(false);
+    setupEmpty();
     assertEquals(false, pebbleGame.getFinished());
 
     testInput("3"+System.lineSeparator()+validFile+System.lineSeparator()+validFile+System.lineSeparator()+
@@ -238,14 +274,13 @@ public class PebbleGameTest {
     assertFalse(out.toString().contains("Player 2's turn")); //Should stop immediately
 
     // Testing that at the second player discarding a pebble it should stop.
-    pebbleGame.setFinished(false);
+    setupEmpty();
     assertEquals(false, pebbleGame.getFinished());
 
     // Gets the list of player, gets the first players pebbles, get the first pebble and turns it into a string.
-    String pebble = pebbleGame.getPlayers().get(0).getPebbles().get(0).toString();
+    testInput("3"+System.lineSeparator()+samefile+System.lineSeparator()+samefile+System.lineSeparator()+
+    samefile+System.lineSeparator()+11+System.lineSeparator()+"e");
 
-    testInput("3"+System.lineSeparator()+validFile+System.lineSeparator()+validFile+System.lineSeparator()+
-    validFile+System.lineSeparator()+pebble+System.lineSeparator()+"e");
     pebbleGame.setUp();
 
     assertEquals(true, pebbleGame.getFinished());
@@ -256,6 +291,18 @@ public class PebbleGameTest {
     assertTrue(out.toString().contains("Player 1's turn"));
     assertTrue(out.toString().contains("Player 2's turn"));
     assertFalse(out.toString().contains("Player 3's turn")); //Should stop immediately
+
+    //Testing that a negative number of players will result in it being asked again.
+    setupEmpty();
+    assertEquals(false, pebbleGame.getFinished());
+
+    testInput("-1"+System.lineSeparator()+"1"+System.lineSeparator()+"e");
+    pebbleGame.setUp();
+
+    assertEquals(true, pebbleGame.getFinished());
+    assertTrue(out.toString().contains("Please enter the number of players:"));
+    assertTrue(out.toString().contains("Please enter a location of bag number 0 to load:"));
+    assertFalse(out.toString().contains("IOException"));
 
 
   }
@@ -281,8 +328,7 @@ public class PebbleGameTest {
   public void playerThreadTest(){
 
     //Test that if e is entered the game ends.
-    assertEquals(0, player.getPebbles().size());
-    assertEquals(false, pebbleGame.getFinished());
+    setupEmpty();
 
     testInput("e");
     pebbleGame.playerThead();
@@ -290,18 +336,14 @@ public class PebbleGameTest {
     assertEquals(0, player.getPebbles().size()); //Check no pebble was removed.
     assertEquals(true, pebbleGame.getFinished());
 
-    //Reset values, Test that on 100 weight leads to a wins.
-    pebbleGame.setFinished(false);
-    player.setPebbles(new ArrayList<>());
-    player.setTotalWeight(0);
+    //Reset values, Test that starting with a 100 weight leads to a win.
+    setupEmpty();
     
     player.addPebble(100); //Total weight now equals 100.
-    player.addPebble(100); //Total weight now equals 200.
-    assertEquals(2, player.getPebbles().size());
-    assertEquals(200, player.getTotalWeight());
+    assertEquals(1, player.getPebbles().size());
+    assertEquals(100, player.getTotalWeight());
     assertEquals(false, pebbleGame.getFinished());
 
-    testInput("100"); //Should exit after removing pebble.
     pebbleGame.playerThead();
 
     assertEquals(1, player.getPebbles().size()); //Check no pebble was removed.
@@ -309,35 +351,39 @@ public class PebbleGameTest {
     assertEquals(true, pebbleGame.getFinished());
     assertTrue(out.toString().contains("Player 1 wins"));
 
+    //Reset values, Test that removing and adding a new pebble leads to a win.
+    setupEmpty();
+    ArrayList<AtomicInteger> tenBag = new ArrayList<>(Arrays.asList(new AtomicInteger(10),
+    new AtomicInteger(10), new AtomicInteger(10), new AtomicInteger(10),
+    new AtomicInteger(10), new AtomicInteger(10), new AtomicInteger(10),
+    new AtomicInteger(10),new AtomicInteger(10), new AtomicInteger(10),
+    new AtomicInteger(10)));
+
+    pebbleGame.setBlackbags(new ArrayList<>(Arrays.asList(tenBag,tenBag,tenBag)));
+
+    player.addPebble(90); //Total weight now equals 90.
+    player.addPebble(20); //Total weight now equals 110.
+    assertEquals(2, player.getPebbles().size());
+    assertEquals(110, player.getTotalWeight());
+    assertEquals(false, pebbleGame.getFinished());
+
+    testInput("20"); //Should remove the 20 and replace it with a 10, resulting in a win.
+    pebbleGame.playerThead();
+
+    assertEquals(2, player.getPebbles().size()); // Size should remain constant
+    assertEquals(100, player.getTotalWeight());
+    assertEquals(true, pebbleGame.getFinished());
+    assertTrue(out.toString().contains("Player 1 wins"));
+
     //Reset values, Test that successfully removes pebble and adds a new one.
-    pebbleGame.setFinished(false);
+    setupValid();
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     player.setTotalWeight(55);
-    player.setBlackNumber(0);
-
-    // Test with all black bags filled and white bags empty.
-    blackBags.add(validBag);
-    blackBags.add(validBag);
-    blackBags.add(validBag);
-    
-    whiteBags.add(new ArrayList<>());
-    whiteBags.add(new ArrayList<>());
-    whiteBags.add(new ArrayList<>());
 
     assertEquals(10, player.getPebbles().size());
     assertEquals(55, player.getTotalWeight());
     assertEquals(false, pebbleGame.getFinished());
-    assertEquals(11, blackBags.get(0).size());
-    assertEquals(11, blackBags.get(1).size());
-    assertEquals(11, blackBags.get(2).size());
-    assertEquals(0, whiteBags.get(0).size());
-    assertEquals(0, whiteBags.get(1).size());
-    assertEquals(0, whiteBags.get(2).size());
     assertEquals(1, pebbleGame.getNumPlayers());
-
-    pebbleGame.setBlackbags(blackBags);
-    pebbleGame.setWhitebags(whiteBags);
-
     assertEquals(11, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
     assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
 
@@ -348,47 +394,19 @@ public class PebbleGameTest {
     assertEquals(10, player.getPebbles().size());
     assertTrue(2 != player.getPebbles().get(1)); // Check 2 was removed.
     assertTrue(10 == player.getPebbles().get(8)); // Check 10 was shifted down an index.
-    assertTrue(1 <= player.getPebbles().get(9) && 10 >= player.getPebbles().get(9)); // A random number was added from the bags.
+    assertTrue(1 <= player.getPebbles().get(9) && 11 >= player.getPebbles().get(9)); // A random number was added from the bags.
     assertEquals(false, pebbleGame.getFinished());
     assertEquals(1, pebbleGame.getNumPlayers());
 
     //Reset values, Test that successfully removes pebble and adds a new one.
-    pebbleGame.setFinished(false);
+    setupValid();
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     player.setTotalWeight(55);
-    player.setBlackNumber(0);
-
-    // Test with all black bags filled and white bags empty.
-    validBag = new ArrayList<>(Arrays.asList(new AtomicInteger(1),
-    new AtomicInteger(2), new AtomicInteger(3), new AtomicInteger(4),
-    new AtomicInteger(5), new AtomicInteger(6), new AtomicInteger(7),
-    new AtomicInteger(8),new AtomicInteger(9), new AtomicInteger(10),
-    new AtomicInteger(11)));
-
-    blackBags.clear();
-    blackBags.add(validBag);
-    blackBags.add(validBag);
-    blackBags.add(validBag);
-    
-    whiteBags.clear();
-    whiteBags.add(new ArrayList<>());
-    whiteBags.add(new ArrayList<>());
-    whiteBags.add(new ArrayList<>());
 
     assertEquals(10, player.getPebbles().size());
     assertEquals(55, player.getTotalWeight());
     assertEquals(false, pebbleGame.getFinished());
-    assertEquals(11, blackBags.get(0).size());
-    assertEquals(11, blackBags.get(1).size());
-    assertEquals(11, blackBags.get(2).size());
-    assertEquals(0, whiteBags.get(0).size());
-    assertEquals(0, whiteBags.get(1).size());
-    assertEquals(0, whiteBags.get(2).size());
     assertEquals(1, pebbleGame.getNumPlayers());
-
-    pebbleGame.setBlackbags(blackBags);
-    pebbleGame.setWhitebags(whiteBags);
-
     assertEquals(11, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
     assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
 
@@ -400,47 +418,19 @@ public class PebbleGameTest {
     assertEquals(10, player.getPebbles().size());
     assertTrue(2 != player.getPebbles().get(1)); // Check 2 was removed.
     assertTrue(10 == player.getPebbles().get(8)); // Check 10 was shifted down an index.
-    assertTrue(1 <= player.getPebbles().get(9) && 10 >= player.getPebbles().get(9)); // A random number was added from the bags.
+    assertTrue(1 <= player.getPebbles().get(9) && 11 >= player.getPebbles().get(9)); // A random number was added from the bags.
     assertEquals(false, pebbleGame.getFinished());
     assertEquals(1, pebbleGame.getNumPlayers());
     
     //Reset values, Test that successfully removes pebble and adds a new one.
-    pebbleGame.setFinished(false);
+    setupValid();
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     player.setTotalWeight(55);
-    player.setBlackNumber(0);
-
-    // Test with all black bags filled and white bags empty.
-    validBag = new ArrayList<>(Arrays.asList(new AtomicInteger(1),
-    new AtomicInteger(2), new AtomicInteger(3), new AtomicInteger(4),
-    new AtomicInteger(5), new AtomicInteger(6), new AtomicInteger(7),
-    new AtomicInteger(8),new AtomicInteger(9), new AtomicInteger(10),
-    new AtomicInteger(11)));
-
-    blackBags.clear();
-    blackBags.add(validBag);
-    blackBags.add(validBag);
-    blackBags.add(validBag);
-    
-    whiteBags.clear();
-    whiteBags.add(new ArrayList<>());
-    whiteBags.add(new ArrayList<>());
-    whiteBags.add(new ArrayList<>());
 
     assertEquals(10, player.getPebbles().size());
     assertEquals(55, player.getTotalWeight());
     assertEquals(false, pebbleGame.getFinished());
-    assertEquals(11, blackBags.get(0).size());
-    assertEquals(11, blackBags.get(1).size());
-    assertEquals(11, blackBags.get(2).size());
-    assertEquals(0, whiteBags.get(0).size());
-    assertEquals(0, whiteBags.get(1).size());
-    assertEquals(0, whiteBags.get(2).size());
     assertEquals(1, pebbleGame.getNumPlayers());
-
-    pebbleGame.setBlackbags(blackBags);
-    pebbleGame.setWhitebags(whiteBags);
-
     assertEquals(11, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
     assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
 
@@ -466,30 +456,26 @@ public class PebbleGameTest {
   @Test
   public void initialDrawerTest(){
 
-    // Test with all black bags filled.
-    blackBags.add(validBag);
-    blackBags.add(validBag);
-    blackBags.add(validBag);
-
-    whiteBags.add(new ArrayList<>());
-    whiteBags.add(new ArrayList<>());
-    whiteBags.add(new ArrayList<>());
-
-    // Validate length of bags is correct for test.
-    assertEquals(11, blackBags.get(0).size());
-    assertEquals(11, blackBags.get(1).size());
-    assertEquals(11, blackBags.get(2).size());
-    assertEquals(0, whiteBags.get(0).size());
-    assertEquals(0, whiteBags.get(1).size());
-    assertEquals(0, whiteBags.get(2).size());
-    assertEquals(1, pebbleGame.getNumPlayers());
-
-    pebbleGame.setBlackbags(blackBags);
-    pebbleGame.setWhitebags(whiteBags);
+    setupValid();
 
     player.setPebbles(new ArrayList<>());
     assertEquals(0, player.getPebbles().size());
+    assertEquals(1, pebbleGame.getNumPlayers());
     assertEquals(11, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
+    assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
+
+    pebbleGame.initialDrawer(player);
+
+    assertEquals(10, player.getPebbles().size());
+    assertEquals(1, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
+    assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
+
+    setupEmpty();
+
+    player.setPebbles(new ArrayList<>());
+    assertEquals(0, player.getPebbles().size());
+    assertEquals(1, pebbleGame.getNumPlayers());
+    assertEquals(0, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
     assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
 
     pebbleGame.initialDrawer(player);
@@ -512,28 +498,10 @@ public class PebbleGameTest {
   @Test
   public void drawerTest(){
 
-    // Test with all black bags filled and white bags empty.
-    blackBags.add(validBag);
-    blackBags.add(validBag);
-    blackBags.add(validBag);
-
-    whiteBags.add(new ArrayList<>());
-    whiteBags.add(new ArrayList<>());
-    whiteBags.add(new ArrayList<>());
-
-    // Validate length of bags is correct for test.
-    assertEquals(11, blackBags.get(0).size());
-    assertEquals(11, blackBags.get(1).size());
-    assertEquals(11, blackBags.get(2).size());
-    assertEquals(0, whiteBags.get(0).size());
-    assertEquals(0, whiteBags.get(1).size());
-    assertEquals(0, whiteBags.get(2).size());
-    assertEquals(1, pebbleGame.getNumPlayers());
-
-    pebbleGame.setBlackbags(blackBags);
-    pebbleGame.setWhitebags(whiteBags);
+    setupValid();
 
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
+    assertEquals(1, pebbleGame.getNumPlayers());
     assertEquals(10, player.getPebbles().size());
     assertEquals(11, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
     assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
@@ -545,35 +513,17 @@ public class PebbleGameTest {
     assertEquals(0, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
 
     //Test with all white bags filled and black bags empty.
-    validBag = new ArrayList<>(Arrays.asList(new AtomicInteger(1),
+    ArrayList<AtomicInteger> validBag = new ArrayList<>(Arrays.asList(new AtomicInteger(1),
     new AtomicInteger(2), new AtomicInteger(3), new AtomicInteger(4),
     new AtomicInteger(5), new AtomicInteger(6), new AtomicInteger(7),
     new AtomicInteger(8),new AtomicInteger(9), new AtomicInteger(10),
     new AtomicInteger(11)));
 
-    blackBags.clear();
-    blackBags.add(new ArrayList<>());
-    blackBags.add(new ArrayList<>());
-    blackBags.add(new ArrayList<>());
-
-    whiteBags.clear();
-    whiteBags.add(validBag);
-    whiteBags.add(validBag);
-    whiteBags.add(validBag);
-
-    // Validate length of bags is correct for test.
-    assertEquals(0, blackBags.get(0).size());
-    assertEquals(0, blackBags.get(1).size());
-    assertEquals(0, blackBags.get(2).size());
-    assertEquals(11, whiteBags.get(0).size());
-    assertEquals(11, whiteBags.get(1).size());
-    assertEquals(11, whiteBags.get(2).size());
-    assertEquals(1, pebbleGame.getNumPlayers());
-
-    pebbleGame.setBlackbags(blackBags);
-    pebbleGame.setWhitebags(whiteBags);
+    pebbleGame.setBlackbags(new ArrayList<>(Arrays.asList(new ArrayList<>(),new ArrayList<>(),new ArrayList<>())));
+    pebbleGame.setWhitebags(new ArrayList<>(Arrays.asList(validBag,validBag,validBag)));
 
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
+    assertEquals(1, pebbleGame.getNumPlayers());
     assertEquals(10, player.getPebbles().size());
     assertEquals(0, pebbleGame.getBlackbags().get(player.getBlackNumber()).size());
     assertEquals(11, pebbleGame.getWhitebags().get(player.getBlackNumber()).size());
@@ -590,6 +540,8 @@ public class PebbleGameTest {
    */
   @Test
   public void readerTest(){
+    setupEmpty();
+    createFiles();
     ArrayList<AtomicInteger> pebbles;
 
     try {
@@ -676,7 +628,10 @@ public class PebbleGameTest {
    */
   @Test
   public void discardWriterTest(){
+    createFiles();
+
     //Testing with a choice of 2 and a bag of A
+    setupEmpty();
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     assertEquals(10, player.getPebbles().size());
     player.setChoice(2);
@@ -688,6 +643,7 @@ public class PebbleGameTest {
     assertEquals("player1 has discarded a "+player.getChoice()+" to bag Aplayer1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file);
 
     //Testing that the file has appended correctly and with a choice of 22 and a bag of C.
+    setupEmpty();
     player.setPebbles(new ArrayList<>(Arrays.asList(6,2,8,22)));
     player.setChoice(22);
     player.setBlackNumber(2);
@@ -710,7 +666,10 @@ public class PebbleGameTest {
    */
   @Test
   public void drawWriterTest(){
+    createFiles();
+
     //Testing with a bag of X
+    setupEmpty();
     player.setPebbles(new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10)));
     assertEquals(10, player.getPebbles().size());
 
@@ -722,6 +681,7 @@ public class PebbleGameTest {
     " from bag Xplayer1 hand is 1, 2, 3, 4, 5, 6, 7, 8, 9, 10", file);
 
     //Testing that the file has appended correctly and with a bag of Z.
+    setupEmpty();
     player.setPebbles(new ArrayList<>(Arrays.asList(6,2,8,22)));
     player.setBlackNumber(2);
 
