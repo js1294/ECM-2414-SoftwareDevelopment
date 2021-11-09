@@ -139,7 +139,6 @@ public class PebbleGame{
         scanner = new Scanner(System.in);
         random = new Random();
         turn = 0;
-
     }
 
     //Getter and setter methods are used for testing purposes only.
@@ -191,6 +190,10 @@ public class PebbleGame{
         this.finished = finished;
     }
 
+    public void setTurn(int turn) {
+        this.turn = turn;
+    }
+    
     /**
      * This method sets up the game by creating the players
      * , creating the bags and giving pebbles to the players.
@@ -288,7 +291,11 @@ public class PebbleGame{
     public void playerThead(){
         //shows the player their pebbles and total weight on each turn
         if (!finished){
-            
+            if(players.get(turn).totalWeight == 100) {
+                System.out.println("\nPlayer " + (turn+1) + "'s total weight is " + players.get(turn).totalWeight);
+                System.out.println("Player " + (turn+1) + " wins!");
+                finished = true; 
+            }
             System.out.println("\nPlayer "+(turn+1)+"'s turn");
             System.out.println("Your current pebbles are: "+ players.get(turn).pebbles);
             System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
@@ -299,12 +306,6 @@ public class PebbleGame{
                 //removes chosen pebble along with its weight
                 try {
                     players.get(turn).removePebble(players.get(turn).choice);
-                } catch (NullPointerException e) {
-                    System.out.println("\n"+e.toString()+"\n");
-                    System.out.println("Please enter a valid pebble.");
-                    playerThead();
-                }
-                if (players.get(turn).pebbles.size() == 9){
                     //adds pebble to whitebag
                     ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
                     whitebag.add(new AtomicInteger(players.get(turn).choice));
@@ -312,8 +313,12 @@ public class PebbleGame{
                     discardWriter(players.get(turn));
                     drawer(players.get(turn));
                     drawWriter(players.get(turn));
+                } catch (NullPointerException e) {
+                    System.out.println("\n"+e.toString()+"\n");
+                    System.out.println("Please enter a valid pebble.");
+                    playerThead();
                 }
-    
+
             }else if (scanner.hasNext()){
                 String userInput = scanner.next();
                 if(userInput.equalsIgnoreCase("e")){
