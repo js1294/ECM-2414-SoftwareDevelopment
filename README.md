@@ -3,3 +3,6 @@ This was an assignment to implement a game involving multiple competing players,
 ## Motivation
 This was created as part of coursework for the module ECM 2414 SoftwareDevelopment, a second year, first term compulsory module.
 ## Installation
+To run any of the tests, Junit 4.0 is required. For installation of Junit 4.0 go to: https://junit.org/junit4/
+## Testing
+To run the test suit, simply run the TestRunner.java to execute all the test suits. 
