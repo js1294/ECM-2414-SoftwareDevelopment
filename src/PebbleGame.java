@@ -37,7 +37,7 @@ public class PebbleGame{
 
     private int numPlayers; // Stores the number of players.
 
-    private boolean finished; //Stores whether the game should finish or not
+    private boolean finished = false; //Stores whether the game should finish or not
 
     /**
      * This is the nested class to represent the player in pebble game.
@@ -48,7 +48,8 @@ public class PebbleGame{
 
         private int totalWeight; // Stores the total weight of all the pebbles, used for winning the game.
 
-        private int blackNumber; // Stores the index of the random black bag to identify paired white bag.
+        private int blackNumber; // Stores the index of the black bag to make sure the player report file
+        // and white bag discarded to is correct.
 
         private int choice; // Stores the pebble that will be removed.
 
@@ -138,7 +139,6 @@ public class PebbleGame{
         scanner = new Scanner(System.in);
         random = new Random();
         turn = 0;
-        finished = false;
     }
 
     //Getter and setter methods are used for testing purposes only.
@@ -199,24 +199,26 @@ public class PebbleGame{
      * , creating the bags and giving pebbles to the players.
      */
     public void setUp(){
-        System.out.println("\n****WELCOME TO PEBBLEGAME****\n"+
-        "\nYou will first be asked to enter the number of players,\n"+
-        "and then for the location of three files containing positive comma-separated-integers.\n"+
-        "The game will then be played until a winning player has achieved a total weight of 100.\n"+
-        "To exit the game, enter 'E' at any input.\n");
+        System.out.println("Welcome to the PebbleGame!!\n"+
+        "You will be asked to enter the number of players\n"+
+        "and then for the location of three files in turn containing "+
+        "comma seperated intger values for the pebbles weights. "+
+        "The integer values must be strictly positive.\n"+
+        "The game will then be simulated, and the output written to rules in this directory.\n"+
+        "To exit the game press 'E' at any input.");
 
         numPlayers = 0;
 
         try{
             //Must be at least one players
             while(numPlayers <= 0 && !finished){
-                System.out.println("\nPlease enter the number of players:");
+                System.out.println("Please enter the number of players:");
                 if (scanner.hasNextInt()) { 
                     numPlayers = scanner.nextInt();
                 } else if (scanner.hasNext()){        
                     String userInput = scanner.next();
                     //comparing the input value with letter e ignoring the case
-                    if(userInput.equalsIgnoreCase("e")){
+                    if(userInput.equals("E")){
                         finished = true;
                     }
                 }  
@@ -228,7 +230,7 @@ public class PebbleGame{
             while (index < 3 && !finished){
                 System.out.println("Please enter a location of bag number "+index+" to load:");
                 String fileName = scanner.nextLine();
-                if(fileName.equalsIgnoreCase("e")){
+                if(fileName.equals("E")){
                     finished = true;
                     break;
                 }
@@ -288,14 +290,13 @@ public class PebbleGame{
      * The method that will be run in a thread for each player.
      */
     public void playerThead(){
-         // This only gets triggered if a player wins from the initial draw
-        if(players.get(turn).totalWeight == 100 && !finished) {
+        //shows the player their pebbles and total weight on each turn
+        if(players.get(turn).totalWeight == 100) {
             System.out.println("\nPlayer " + (turn+1) + "'s total weight is " + players.get(turn).totalWeight);
             System.out.println("Player " + (turn+1) + " wins!");
             finished = true; 
         }
         if (!finished){
-            // Shows the player their pebbles and total weight at the start of each turn
             System.out.println("\nPlayer "+(turn+1)+"'s turn");
             System.out.println("Your current pebbles are: "+ players.get(turn).pebbles);
             System.out.println("Your current total weight is: "+players.get(turn).totalWeight);
@@ -303,15 +304,16 @@ public class PebbleGame{
 
             if (scanner.hasNextInt()){
                 players.get(turn).choice = scanner.nextInt();
+                //removes chosen pebble along with its weight
                 try {
-                    players.get(turn).removePebble(players.get(turn).choice); // Removes chosen pebble along with its weight
+                    players.get(turn).removePebble(players.get(turn).choice);
+                    //adds pebble to whitebag
                     ArrayList<AtomicInteger> whitebag = whitebags.get(players.get(turn).blackNumber);
-                    whitebag.add(new AtomicInteger(players.get(turn).choice)); // Adds same pebble to whitebag
+                    whitebag.add(new AtomicInteger(players.get(turn).choice));
         
                     discardWriter(players.get(turn));
                     drawer(players.get(turn));
                     drawWriter(players.get(turn));
-
                 } catch (NullPointerException e) {
                     System.out.println("\n"+e.toString()+"\n");
                     System.out.println("Please enter a valid pebble.");
@@ -320,7 +322,7 @@ public class PebbleGame{
 
             }else if (scanner.hasNext()){
                 String userInput = scanner.next();
-                if(userInput.equalsIgnoreCase("e")){
+                if(userInput.equals("E")){
                     finished = true;
                 }else{
                     System.out.println("Please enter a valid pebble.");
@@ -336,7 +338,7 @@ public class PebbleGame{
         }
     }
 
-    /**
+    /**F
      * A method to read the CSV files used for the black bags.
      * This reads the file splits the file into strings
      * and then converts them into a list of integers.
