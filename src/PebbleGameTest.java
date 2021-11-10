@@ -36,8 +36,6 @@ public class PebbleGameTest {
 
   private String validFile;
 
-  private String tooLowFile;
-
   private String negativeFile;
   
   private String tooFewFile;
@@ -94,14 +92,12 @@ public class PebbleGameTest {
   @Before
   public void createFiles(){
     validFile = "valid.csv";
-    tooLowFile = "tooLowFile.csv";
     negativeFile = "negativeFile.csv";
     tooFewFile = "tooFewFile.csv";
     samefile = "sameFile.csv";
     playerFile = "player1_output.txt";
 
     writer(validFile, "1,2,3,4,5,6,7,8,9,10,11");
-    writer(tooLowFile, "1,1,1,1,1,1,1,1,1,1,1");
     writer(negativeFile, "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,100");
     writer(tooFewFile, "100,100");
     writer(playerFile, "");
