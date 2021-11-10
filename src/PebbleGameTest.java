@@ -543,6 +543,16 @@ public class PebbleGameTest {
 
   /**
    * This is a unit test of the method readerTest.
+   * 
+   * The first three tests are done to check that with a valid CSV file
+   * and a varying number of players, there will be enough total pebbles
+   * in bags for the players.
+   * 
+   * The second set of tests are done to check that a file with negative values
+   * in it will be caught and an NegativeWeightPebbleException will be thrown. 
+   * 
+   * The third set of test have been done to test that a file with too few pebbles
+   * in it (which would result in too few pesbbles for players) will be caught and an TooFewValuesException will be thrown.
    */
   @Test
   public void readerTest(){
@@ -552,17 +562,17 @@ public class PebbleGameTest {
       //Testing using one player, valid csv file.
       pebbleGame.setNumPlayers(1);
       pebbles = pebbleGame.reader(validFile);
-      assertTrue(11 <= pebbles.size());
+      assertTrue(11 <= pebbles.size()); //Checking that the number of pebbles is greater than minimum.
 
       //Testing using a reasonable number of players
       pebbleGame.setNumPlayers(4);
       pebbles = pebbleGame.reader(validFile);
-      assertTrue(11 <= pebbles.size());
+      assertTrue(44 <= pebbles.size()); //Checking that the number of pebbles is greater than minimum.
 
       //Testing using hundred players, valid csv file.
       pebbleGame.setNumPlayers(100);
       pebbles = pebbleGame.reader(validFile);
-      assertTrue(110 <= pebbles.size());
+      assertTrue(1100 <= pebbles.size()); //Checking that the number of pebbles is greater than minimum.
     } catch (IOException | NegativeWeightException | TooFewValuesException e) {
       fail("Invalid Exception");
     }
@@ -570,7 +580,7 @@ public class PebbleGameTest {
     //Testing using one player, csv file would result in negative pebbles in the bags.
     try {
       pebbleGame.setNumPlayers(1);
-      pebbleGame.reader(negativeFile);
+      pebbleGame.reader(negativeFile); // A negative value in the file should result in a NegativeWeightPebbleException. 
       fail("No NegativeWeightPebbleException");
     } catch (IOException | TooFewValuesException e){
       fail("Invalid Exception");
@@ -579,7 +589,7 @@ public class PebbleGameTest {
     //Testing using hundred players, csv file would result in negative pebbles in the bags.
     try {
       pebbleGame.setNumPlayers(100);
-      pebbleGame.reader(negativeFile);
+      pebbleGame.reader(negativeFile); // A negative value in the file should result in a NegativeWeightPebbleException. 
       fail("No NegativeWeightPebbleException");
     } catch (IOException | TooFewValuesException e){
       fail("Invalid Exception");
@@ -589,7 +599,7 @@ public class PebbleGameTest {
     try {
       pebbleGame.setNumPlayers(1);
       pebbleGame.reader(tooFewFile);
-      fail("No TooFewValuesException");
+      fail("No TooFewValuesException"); // Too few pebbles in the file should result in a TooFewValuesException.
     } catch (IOException | NegativeWeightException e){
       fail("Invalid Exception");
     } catch (TooFewValuesException e){}
@@ -598,7 +608,7 @@ public class PebbleGameTest {
     try {
       pebbleGame.setNumPlayers(100);
       pebbleGame.reader(tooFewFile);
-      fail("No TooFewValuesException");
+      fail("No TooFewValuesException"); // Too few pebbles in the file should result in a TooFewValuesException.
     } catch (IOException | NegativeWeightException e){
       fail("Invalid Exception");
     } catch (TooFewValuesException e){}
